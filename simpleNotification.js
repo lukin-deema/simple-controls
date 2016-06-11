@@ -11,7 +11,7 @@
 		var cross = document.createElement('div');
 		cross.setAttribute('id', options.containerIdName+'Close');
 		cross.innerHTML = '&#x2716;';
-		applyStyles(cross, {
+		applyStyles(cross, { 'top': '-60px',
 			'position':'relative',	'left':'99%',
 			'cursor':'default',			'color':'#fff'
 		});
@@ -24,7 +24,7 @@
 			'z-index':'999',	'position':'fixed',			
 			'box-sizing':'border-box',	'width':'100%',
 			'background-color': color,	'left':'1px',			'height':'60px'}
-		);
+			);
 		if (options.position == 'top') {
 			applyStyles(elem, { 'top': '0px' });
 		}
@@ -33,9 +33,10 @@
 		}
 		return elem;
 	}
-	function createContextMessage(value) {
+	function createMessageContext(value) {
 		var context = document.createElement('div');
-		applyStyles(context, { 'text-align':'center','color':'#fff' });
+		applyStyles(context, { 'text-align':'center','color':'#fff',
+			'line-height': '60px'});
 		context.innerHTML = value;
 		return context;
 	}
@@ -59,10 +60,10 @@
 	}
 	function render(value, color){
 		if (!this.msgContainer) {
-			this.msg = this.msg || createContextMessage(value);
+			this.msg = this.msg || createMessageContext(value);
 			this.msgContainer = this.msgContainer || createMessageContainer(this.options, color);
-			addExitClickEvent(this.msgContainer, this.options, true);
 			this.msgContainer.appendChild(this.msg);
+			addExitClickEvent(this.msgContainer, this.options, true);
 
 			document.body.appendChild(this.msgContainer);
 		} else {
@@ -108,5 +109,5 @@
 		optionsSet: optionsSet 
 	};
 
-		global.SimpleNotification = SimpleNotification;
-	})(this);
+	global.SimpleNotification = SimpleNotification;
+})(this);
