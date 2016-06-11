@@ -3,9 +3,9 @@
 	var errorColor ='#f00';
 
 	function applyStyles(node, styles) {
-    Object.keys(styles).forEach(function(key) {
-        node.style[key] = styles[key];
-    });
+		Object.keys(styles).forEach(function(key) {
+			node.style[key] = styles[key];
+		});
 	}
 	function createExitCross(options){
 		var cross = document.createElement('div');
@@ -22,9 +22,15 @@
 		elem.setAttribute('id', options.containerIdName);
 		applyStyles(elem, {
 			'z-index':'999',	'position':'fixed',			
-			'box-sizing':'border-box',	'top':'0px',			'width':'100%',
+			'box-sizing':'border-box',	'width':'100%',
 			'background-color': color,	'left':'1px',			'height':'60px'}
-			);
+		);
+		if (options.position == 'top') {
+			applyStyles(elem, { 'top': '0px' });
+		}
+		if (options.position == 'bottom') {
+			applyStyles(elem, { 'bottom': '0px' });
+		}
 		return elem;
 	}
 	function createContextMessage(value) {
@@ -51,10 +57,10 @@
 			msgContainer.addEventListener('click', clickExitContainer);
 		}
 	}
-	function render(value){
+	function render(value, color){
 		if (!this.msgContainer) {
 			this.msg = this.msg || createContextMessage(value);
-			this.msgContainer = this.msgContainer || createMessageContainer(this.options, errorColor);
+			this.msgContainer = this.msgContainer || createMessageContainer(this.options, color);
 			addExitClickEvent(this.msgContainer, this.options, true);
 			this.msgContainer.appendChild(this.msg);
 
@@ -62,9 +68,15 @@
 		} else {
 			document.body.appendChild(this.msgContainer);
 			this.msg.innerHTML = value;
-			this.msgContainer.style['background-color'] = errorColor;
+			this.msgContainer.style['background-color'] = color;
 			addExitClickEvent(this.msgContainer, this.options);
 		}
+	}
+	function renderError(message) {
+		this.render(message, errorColor);
+	}
+	function renderSuccess(message) {
+		this.render(message, successColor);
 	}
 	function destroy() {
 		if (document.querySelector("#"+this.options.containerIdName)) {
@@ -76,15 +88,25 @@
 	}
 	function optionsSet(opt) {
 		this.options = {};
+		// container id name
 		this.options.containerIdName = opt.containerIdName != undefined ? opt.containerIdName.trim() : 'msg_message';
+		// show sross button (true or false)
 		this.options.exitCross = opt.exitCross != undefined ? opt.exitCross : true;
+		// position (top or bottom)
+		this.options.position = opt.position != undefined ? opt.position : 'top';
 	}
 
 	function SimpleNotification(opt) { 
 		this.optionsSet(opt);
 	}
-	SimpleNotification.prototype = {  render: render, destroy: destroy,
-		optionsGet: optionsGet, optionsSet: optionsSet };
+	SimpleNotification.prototype = { 
+		render: render,
+		renderError: renderError, 
+		renderSuccess: renderSuccess, 
+		destroy: destroy,
+		optionsGet: optionsGet, 
+		optionsSet: optionsSet 
+	};
 
-	global.SimpleNotification = SimpleNotification;
-})(this);
+		global.SimpleNotification = SimpleNotification;
+	})(this);
