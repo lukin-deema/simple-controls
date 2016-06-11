@@ -19,7 +19,7 @@
 	}
 	function createMessageContainer(color) {
 		var elem = document.createElement('div');
-		elem.setAttribute('id','msg_message');
+		elem.setAttribute('id', this.options.containerIdName);
 		applyStyles(elem, {
 			'z-index':'999',	'position':'fixed',			
 			'box-sizing':'border-box',	'top':'0px',			'width':'100%',
@@ -27,37 +27,55 @@
 			);
 		return elem;
 	}
-	function clickCross(e) {
-		this.removeEventListener('click', clickCross);
+	function clickExitCross() {
+		this.removeEventListener('click', clickExitCross);
+		this.parentNode.parentNode.removeChild(this.parentNode);
+	}
+	function clickExitContainer() {
+		this.removeEventListener('click', clickExitContainer);
 		this.parentNode.removeChild(this);
+	}
+	function addExitClickEvent(msgContainer, options, append) {
+		if (options.exitCross && append) { 
+			msgContainer.appendChild(createExitCross()); 
+		}
+		if (options.exitCross) {
+			msgContainer.querySelector("#msg_close").addEventListener('click', clickExitCross);
+		} else {
+			msgContainer.addEventListener('click', clickExitContainer);
+		}
+	}
+	function addContextMessage(value) {
+		var context = document.createElement('div');
+		applyStyles(context, { 'text-align':'center','color':'#fff' });
+		context.innerHTML = value;
+		return context;
 	}
 	function render(value){
 		if (!this.msgContainer) {
-			this.msg = document.createElement('div');
-			applyStyles(this.msg, { 'text-align':'center','color':'#fff' });
-			this.msg.innerHTML = value;
+			this.msg = this.msg || addContextMessage(value);
 			this.msgContainer = this.msgContainer || createMessageContainer(errorColor);
-			this.msgContainer.appendChild(createExitCross());
+			addExitClickEvent(this.msgContainer, this.options, true);
 			this.msgContainer.appendChild(this.msg);
 
 			document.body.appendChild(this.msgContainer);
-			this.msgContainer.addEventListener('click', clickCross);
 		} else {
 			document.body.appendChild(this.msgContainer);
 			this.msg.innerHTML = value;
-			this.msgContainer.style['background-color'] = color;
-			this.msgContainer.addEventListener('click', clickCross);
+			this.msgContainer.style['background-color'] = errorColor;
+			addExitClickEvent(this.msgContainer, options);
 		}
 	}
 	function destroy() {
-		if (document.querySelector('#msg_message')) {
+		if (document.querySelector("#"+this.options.containerIdName)) {
 			this.msgContainer.parentNode.removeChild(this.msgContainer);
-			this.msgContainer.addEventListener('click', clickCross);
 		}
 	}
 
 	function SimpleNotification(options) { 
-		this.options = options;
+		this.options = {};
+		this.options.containerIdName = options.containerIdName.trim() || 'msg_message';
+		this.options.exitCross = options.exitCross || true;
 	}
 	SimpleNotification.prototype = {  render: render, destroy: destroy }
 
