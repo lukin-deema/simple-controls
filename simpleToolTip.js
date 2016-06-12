@@ -10,19 +10,25 @@
 	}
 	function optionsSet(opt) {
 		this.options = {};
+		if (!opt.hookElem) {
+			console.error("You should define 'options.hookElem'");
+		}		
 		this.options.hookElem = opt.hookElem;
-		this.options.toolTipId = opt.toolTipId;
+		this.options.toolTipId = opt.toolTipId || "toolTip";
+		if (!opt.toolTipText && !opt.hookAttr) {
+			console.error("You should define 'options.toolTipText' or 'options.hookAttr'");
+		}
 		this.options.toolTipText = opt.toolTipText;
+		this.options.hookAttr = opt.hookAttr;
 	}
 
 	function SimpleToolTip(options) {
 		this.optionsSet(options);
 		this.toolTipContainer = document.createElement('div');
 		this.toolTipContainer.setAttribute('id', this.options.toolTipId);
-		this.toolTipContainer.innerHTML = options.toolTipText;
+		this.toolTipContainer.innerHTML = options.toolTipText || options.hookElem[options.hookAttr];
 		applyStyles(this.toolTipContainer, {
-			"display": "none",
-			'background-color': '#ffffff', "position": "absolute"
+			"display": "none", 'background-color': '#ffffff', "position": "absolute"
 		})
 
 		document.body.appendChild(this.toolTipContainer);
