@@ -21,8 +21,8 @@
 		this.options.hookAttr = opt.hookAttr;
 
 		this.options.toolTipId = opt.toolTipId || "toolTip";
-		this.options.track = opt.track != undefined ? opt.track : false;
-		this.options.hookOnCreate = opt.hookOnCreate != undefined ? opt.hookOnCreate : true;
+		this.options.track = opt.track !== undefined ? opt.track : false;
+		this.options.hookOnCreate = opt.hookOnCreate !== undefined ? opt.hookOnCreate : true;
 		if (options.hookOnCreate) {
 			this.hook();
 		}
@@ -55,14 +55,14 @@
 			this.toolTipContainer.innerHTML = this.options.toolTipText || this.options.hookElem[this.options.hookAttr];
 			applyStyles(this.toolTipContainer, {
 				"display": "none", 'background-color': '#ffffff', "position": "absolute"
-			})
+			});
 
 			document.body.appendChild(this.toolTipContainer);
 			this.options.hookElem.setAttribute('toolTipId', this.options.toolTipId);
 			this.options.hookElem.setAttribute('value', this.toolTipContainer.innerHTML);
 			this.options.hookElem.addEventListener('mousemove', onMouseMove);
 			this.options.hookElem.addEventListener('mouseover', onMouseOver);
-			this.options.hookElem.addEventListener('mouseleave', onMouseLeave)
+			this.options.hookElem.addEventListener('mouseleave', onMouseLeave);
 			if (this.options.track) {
 				this.options.hookElem.addEventListener('change', onChange);
 			}

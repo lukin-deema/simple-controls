@@ -40,11 +40,11 @@
 		context.innerHTML = value;
 		return context;
 	}
-	function clickExitCross(e) {
+	function clickExitCross() {
 		this.removeEventListener('click', clickExitCross);
 		this.parentNode.parentNode.removeChild(this.parentNode);
 	}
-	function clickExitContainer(e) {
+	function clickExitContainer() {
 		this.removeEventListener('click', clickExitContainer);
 		this.parentNode.removeChild(this);
 	}
@@ -90,11 +90,11 @@
 	function optionsSet(opt) {
 		this.options = {};
 		// container id name
-		this.options.containerIdName = opt.containerIdName != undefined ? opt.containerIdName.trim() : 'msg_message';
+		this.options.containerIdName = opt.containerIdName !== undefined ? opt.containerIdName.trim() : 'msg_message';
 		// show sross button (true or false)
-		this.options.exitCross = opt.exitCross != undefined ? opt.exitCross : true;
+		this.options.exitCross = opt.exitCross !== undefined ? opt.exitCross : true;
 		// position (top or bottom)
-		this.options.position = opt.position != undefined ? opt.position : 'top';
+		this.options.position = opt.position !== undefined ? opt.position : 'top';
 	}
 
 	function SimpleNotification(opt) { 
