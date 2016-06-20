@@ -8,6 +8,7 @@
 	function optionsGet() {
 		return this.options;
 	}
+	
 	function optionsSet(opt) {
 		this.options = {};
 		if (!opt.hookElem) {
@@ -40,14 +41,12 @@
 		e.target.setAttribute('value', e.target.value);
 	}
 	function onMouseMove(e){
-			var elem = document.querySelector("#"+e.target.getAttribute('toolTipId'));
-			elem.innerHTML = e.target.getAttribute('value');
-			elem.style.top = (e.pageY - 20)+"px";
-			elem.style.left = (e.pageX + 5)+"px";
-		}
-	function SimpleToolTip(options) {
-		this.optionsSet(options);
+		var elem = document.querySelector("#"+e.target.getAttribute('toolTipId'));
+		elem.innerHTML = e.target.getAttribute('value');
+		elem.style.top = (e.pageY - 20)+"px";
+		elem.style.left = (e.pageX + 5)+"px";
 	}
+
 	function hook() {
 		if (!this.toolTipContainer) {
 			this.toolTipContainer = document.createElement('div');
@@ -79,6 +78,20 @@
 		this.options.hookElem.removeAttribute('value');
 		this.toolTipContainer.parentNode.removeChild(this.toolTipContainer);
 		this.toolTipContainer = undefined;
+	}
+	/*
+	options:
+		hookElem: --require --default=undefined, dom element	
+		toolTipId: --default="toolTip", if of tooltip container in document
+		toolTipText: --default=undefined, predefine constant text in tooltip
+		hookAttr: --default=undefined, get value from attribute of hookElem
+			(!)toolTipText & hookAttr set tooltip text, toolTipText high priority
+		track: --default=false, in case of hookAttr listen for changes and update value
+		hookOnCreate: --default=true, render tooltip on create new instance 
+			(new SimpleToolTip(optins);
+	*/
+	function SimpleToolTip(options) {
+		this.optionsSet(options);
 	}
 	SimpleToolTip.prototype = { 
 		optionsGet: optionsGet,

@@ -89,14 +89,17 @@
 	}
 	function optionsSet(opt) {
 		this.options = {};
-		// container id name
 		this.options.containerIdName = opt.containerIdName !== undefined ? opt.containerIdName.trim() : 'msg_message';
-		// show sross button (true or false)
 		this.options.exitCross = opt.exitCross !== undefined ? opt.exitCross : true;
-		// position (top or bottom)
 		this.options.position = opt.position !== undefined ? opt.position : 'top';
 	}
 
+	/*
+	options:
+		containerIdName: --default="msg_message"
+		exitCross: --default=true (true/false)
+		position: --default="top" ('bottom'/'top')
+	*/
 	function SimpleNotification(opt) { 
 		this.optionsSet(opt);
 	}
