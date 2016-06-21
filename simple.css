@@ -1,0 +1,9 @@
+table.simple-table{
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+table.simple-table th, table.simple-table td
+{
+	padding: 5px;
+	border: 1px solid black;
+}

@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Document</title>
+	<link rel="stylesheet" type="text/css" href="simple.css">
 </head>
 <body>
 	TEST SIMPLE NOTIFICATION
@@ -17,8 +18,18 @@
 	<input type="text" name="button" value="" id="ttTextTest2">	
 	<input type="button" name="button" value="addTT" onclick="addTT()">
 	<input type="button" name="button" value="destroyTT" onclick="destroyTT()">
+
+	<br><br>
+	<div id="snTable"></div>
+	<br><br>
+	<input type="text" name="button" value="" id="tableName">	
+	<input type="text" name="button" value="" id="tableAge">	
+	<input type="button" name="button" value="add new item" onclick="addToTable()">
+	<br><br><div class="console"></div>
+
 </body>
 <script type="text/javascript" src="simpleNotification.js"></script>
 <script type="text/javascript" src="simpleToolTip.js"></script>
+<script type="text/javascript" src="simpleGrid.js"></script>
 <script type="text/javascript" src="index.js"></script>
 </html>
