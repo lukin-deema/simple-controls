@@ -59,14 +59,25 @@ function destroyTT() {
 var tableOptions = {
 	headers: ["name", "age"],
 	containerIdName: "snTable",
-	data: [{"name":"Pit", "age":20},{"name":"Sally", "age":21}],
-	removeButton: true
+	data: [{"name":"Pit", "age":22},{"name":"Sally", "age":21}],
+	removeButton: true,
+	sortClick: true
+}
+
+function log(){
+	document.querySelector(".console").innerHTML = JSON.stringify(sTable.options.data) + "." + JSON.stringify(sTable.options.sortName) + "." + JSON.stringify(sTable.options.sortAsc);
 }
 
 var sTable = new SimpleGrid(tableOptions);
-document.querySelector(".console").innerHTML = JSON.stringify(sTable.options.data);
+log();
+
 function addToTable() {
 	sTable.addItems({"name": document.querySelector("#tableName").value, 
 									 "age": document.querySelector("#tableAge").value})
-	document.querySelector(".console").innerHTML = JSON.stringify(sTable.options.data);
+	log();
+}
+function sortTable() {
+	var checked = document.querySelector("#checkbox").checked;
+	sTable.sortItems("name", checked);
+	log();
 }
