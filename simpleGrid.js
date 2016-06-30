@@ -1,3 +1,20 @@
+/* v1.0.0
+
+	options:
+		{v1.0.0}  headers: --default=[], array of string 
+		{v1.0.0}  data: --default=[], can be added using addItems method
+		{v1.0.0}  containerIdName: --default="snTable"
+		{v1.0.0}  tableClass: -- default=undefined, on some value remove default style on table and set this value
+		{v1.0.0}  removeButton: --default=false on true add button for delete item
+		{v1.0.0}  sortClick: --default=false on true add button for delete item
+	methods:
+		{v1.0.0}  render 
+		{v1.0.0}  optionsGet
+		{v1.0.0}  optionsSet
+		{v1.0.0}  addItems - object or object array with keys similar to options.header of objects
+		{v1.0.0}  removeItemById - index of removing item
+		{v1.0.0}  sortItems - criteria  {id, sortAsc}
+*/
 (function SimpleNotification(global) {
 	
 	function applyStyles(node, styles) {
@@ -6,11 +23,11 @@
 		});
 	}
 
-/*	function addClass(element, _class) {
+	function addClass(element, _class) {
 		element.className += element.className ? ' '
 			+ _class : _class;
 	}
-*/
+
 	function createHeader() {
 		var header = document.createElement("thead");
 		var tr = document.createElement("tr");
@@ -29,18 +46,25 @@
 		header.appendChild(tr);
 		return header;
 	}
+	function addDefaultStyles(table){
+		applyStyles(table, {
+			'border-collapse': 'collapse',
+			'border-spacing': '0px'
+		})
+		var style = document.createElement("style");
+		style.innerHTML = "table th, table td { padding: 5px; border: 1px solid black }";
+		table.appendChild(style);
+	}
 	function render() {
 		var table = this.container.querySelector("table");
 		if (!table) {
 			// table header
 			var table = document.createElement("table");
-			applyStyles(table, {
-				'border-collapse': 'collapse',
-				'border-spacing': '0px'
-			})
-			var style = document.createElement("style");
-			style.innerHTML = "table th, table td { padding: 5px; border: 1px solid black }";
-			table.appendChild(style);
+			if (!this.options.tableClass) {
+				addDefaultStyles(table);
+			} else {
+				addClass(table, this.options.tableClass)
+			}
 			table.appendChild(createHeader.call(this));
 
 			var tbody = document.createElement("tbody");
@@ -48,7 +72,6 @@
 
 			this.container.appendChild(table);
 
-			// table data
 			if (this.options.data) {
 				this.addItems(this.options.data, false);
 			}
@@ -183,26 +206,20 @@
 		this.options.data = opt.data || [];
 		this.options.removeButton = opt.removeButton != undefined ? opt.removeButton: false;
 		this.options.sortClick = opt.sortClick != undefined ? opt.sortClick: false;
+		this.options.tableClass = opt.tableClass;
 	}
-	/*
-	options:
-		headers: --default=[], array of string 
-		containerIdName: --default="snTable"
-		data: --default=[], 
-		removeButton: --default=false on true add button for delete item
-		sortClick: --default=false on true add button for delete item
-	*/
+
 	function SimpleGrid(opt) { 
 		this.optionsSet(opt);
 		this.render();
 	}
 	SimpleGrid.prototype = { 
 		render: render,
-		addItems: addItems, /// object with keys similar to options.header or array of objects
-		removeItemById: removeItemById,	/// index of removing item
+		addItems: addItems,
+		removeItemById: removeItemById,
 		optionsGet: optionsGet, 
 		optionsSet: optionsSet,
-		sortItems: sortItems		/// criteria  {id, sortAsc}
+		sortItems: sortItems
 	};
 
 	global.SimpleGrid = SimpleGrid;
