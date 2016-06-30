@@ -1,7 +1,9 @@
 /* SimpleNotification v1.0.0.
 	
-	v1.0.0. 
-
+	v1.0.0. 1. create notification in container with id containerIdName
+	2. if exitCross=true closing nitification only by clicking on cross, on false close by clicking on container
+	3. notification position can be top or bottom
+	
 	options:
 		{v1.0.0}  containerIdName: --default="msg_message"
 		{v1.0.0}  exitCross: --default=true (true/false) on true notify close by clicking on cross, on false notify close by clicking on notify div

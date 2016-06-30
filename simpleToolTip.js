@@ -1,5 +1,9 @@
 /* SimpleToolTip v1.0.0
 
+	v1.0.0. 1. tooltip can hook to element with id = 'hookElem'. tooptip contains in container with id containerIdName
+	2. text can be static 'toolTipText' or dynamic 'hookAttr'. 'hookAttr' is the attribute name whitch will be showing on tooltip. by default it sync only one time, if 'track' = true tooltip can update in case of updating attribute
+	3. hooking tooltip can be postponed and hook by calling .hook()
+
 	options:
 		{v1.0.0}  hookElem: --require --default=undefined, dom element	
 		{v1.0.0}  containerIdName: --default="toolTip", if of tooltip container in document

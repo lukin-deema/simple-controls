@@ -67,6 +67,9 @@ var tableOptions = {
 	removeButton: true,
 	sortClick: true,
 	removeCallback: callbackMethod,
+	dataTemplate: //"<span style='color:red'>%data%</span>"
+	{"name":"<a href='#%data%'><span style='color:red'>%data%</span></a>", 
+	 "age":"<span style='color:blue'>%data%</span>"}
 }
 
 function log(){
