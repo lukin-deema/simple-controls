@@ -1,19 +1,27 @@
-/* v1.0.0
+/* SimpleGrid v1.0.1.
 
+	v1.0.0.	create table in container with id 'containerIdName'.
+	table with headers and data. data is array of object where keys same as values in header. 
+	by default table have simple style. 'tableClass' replace default styles to value from options.tableClass. 
+	removeItemById(id) remove item. on removeButton=true can remove one item from UI. 
+	sortItems({id, sortAsc}) can sort items. on sortClick=true can sort items by clicking on header
+
+	v1.0.1. add removeCallback witch call when removed item. default value = function(item, index, callback){ callback(); }
 	options:
 		{v1.0.0}  headers: --default=[], array of string 
 		{v1.0.0}  data: --default=[], can be added using addItems method
 		{v1.0.0}  containerIdName: --default="snTable"
-		{v1.0.0}  tableClass: -- default=undefined, on some value remove default style on table and set this value
+		{v1.0.0}  tableClass: --default=undefined, on some value remove default style on table and set this value
 		{v1.0.0}  removeButton: --default=false on true add button for delete item
 		{v1.0.0}  sortClick: --default=false on true add button for delete item
+		{v1.0.1}	removeCallback: --default=undefined -> function(item, index){}
 	methods:
 		{v1.0.0}  render 
 		{v1.0.0}  optionsGet
 		{v1.0.0}  optionsSet
 		{v1.0.0}  addItems - object or object array with keys similar to options.header of objects
-		{v1.0.0}  removeItemById - index of removing item
-		{v1.0.0}  sortItems - criteria  {id, sortAsc}
+		{v1.0.0}  removeItemById(id) - index of removing item
+		{v1.0.0}  sortItems(criteria) -   {id, sortAsc}
 */
 (function SimpleNotification(global) {
 	
@@ -133,8 +141,12 @@
 			console.warn("wrong index number");
 			return;
 		}
-		tbody.removeChild(tbody.childNodes[index]);
-		this.options.data.splice(index, 1);
+		var deletingItem = this.options.data.slice(index, index+1);
+		this.options.removeCallback(deletingItem, index
+		, function(){
+			tbody.removeChild(tbody.childNodes[index]);
+			var deletingItem = this.options.data.splice(index, 1);
+		});
 	}
 
 	function sortItems(sortName, sortAsc){
@@ -207,6 +219,7 @@
 		this.options.removeButton = opt.removeButton != undefined ? opt.removeButton: false;
 		this.options.sortClick = opt.sortClick != undefined ? opt.sortClick: false;
 		this.options.tableClass = opt.tableClass;
+		this.options.removeCallback = opt.removeCallback || function(item, index,callback){ callback(); }
 	}
 
 	function SimpleGrid(opt) { 

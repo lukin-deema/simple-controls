@@ -1,4 +1,4 @@
-/* v1.0.0
+/* SimpleToolTip v1.0.0
 
 	options:
 		{v1.0.0}  hookElem: --require --default=undefined, dom element	

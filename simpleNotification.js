@@ -1,4 +1,6 @@
-/* v1.0.0
+/* SimpleNotification v1.0.0.
+	
+	v1.0.0. 
 
 	options:
 		{v1.0.0}  containerIdName: --default="msg_message"

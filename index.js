@@ -56,12 +56,17 @@ function destroyTT() {
 	tt2.destroy();
 }
 ///////////// Table
+var callbackMethod = function(item, index, callback){
+	alert("item: "+JSON.stringify(item)+"; index: "+index);
+	callback()
+}
 var tableOptions = {
 	headers: ["name", "age"],
 	containerIdName: "snTable",
 	data: [{"name":"Pit", "age":22},{"name":"Sally", "age":21}],
 	removeButton: true,
-	sortClick: true
+	sortClick: true,
+	removeCallback: callbackMethod,
 }
 
 function log(){
