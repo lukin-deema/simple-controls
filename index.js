@@ -58,11 +58,17 @@ function destroyTT() {
 ///////////// Table
 var callbackRemove = function(item, index, callback){
 	alert("item: "+JSON.stringify(item)+"; index: "+index);
-	callback()
+	callback(true)
 }
 var callbackAdd = function(item, callback){
 	alert("item: "+JSON.stringify(item));
-	callback();
+	callback(true);
+}
+var callbackEdit = function(oldItem, newItem, index, callback){
+	alert("oldItem: "+JSON.stringify(oldItem)
+		+"newItem: "+JSON.stringify(newItem)
+		+"index: "+JSON.stringify(index));
+	callback(true);
 }
 var tableOptions = {
 	headers: ["name", "age"],
@@ -70,6 +76,8 @@ var tableOptions = {
 	data: [{"name":"Pit", "age":22},{"name":"Sally", "age":21}],
 	addRow: true,
 	callbackAdd: callbackAdd,
+	editRow: true,
+	callbackEdit: callbackEdit,
 	// removeButton: true,
 	// sortClick: true,
 	// callbackRemove: callbackRemove,

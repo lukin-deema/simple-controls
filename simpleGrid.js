@@ -1,38 +1,45 @@
-/* SimpleGrid v1.0.1.
+/* SimpleGrid v1.0.2.
 
-	v1.0.0.	1. create table in container with id 'containerIdName'.
+	v1.0.0.	
+	1. create table in container with id 'containerIdName'.
 	2. table with headers and data. data is array of object where keys same as values in header. 
 	3. by default table have simple style. 'tableClass' replace default styles to value from options.tableClass. 
 	4. removeItemById(id) remove item. on removeButton=true can remove one item from UI. 
 	5. sortItems({id, sortAsc}) can sort items. on sortClick=true can sort items by clicking on header
 
-	v1.0.1. 1. add callbackRemove witch call when removed item. default value = function(item, index, callback){ callback(); }
+	v1.0.1. 
+	1. add callbackRemove witch call when removed item. default value = function(item, index, callback){ callback(); }
 	2. add data template for table cells can be string(apply to all column) or object(keys should be name of headers, each column will have different template)
 	3. add possibility to append items. on 'addRow'=true in table footer  appear fields and button for input new item. you can get new item from outside owerriding 'callbackAdd' . by default 'callbackAdd' = function(item, callback){ callback(); } 
 
+	v1.0.2 
+	1.change callbackRemove to send result if result true remove item from table
+	2. change callbackAdd to send result if result true add item to table
+	3. add possibility to 'editRow' append button Edit, by clicking you can edit current item in footer. callbackEdit(result) if result true change item in table
+
 	options:
 		{v1.0.0}  headers: --default=[], array of string [headers[0],...,headers[n]]
-		{v1.0.0}  data: --default=[], can be added using addItems method 
-		[{headers[i]: value,..., headers[n]: value},{...}]
+		{v1.0.0}  data: --default=[], can be added using addItems method [{headers[i]: value,..., headers[n]: value},{...}]
 		{v1.0.0}  containerIdName: --default="snTable"
 		{v1.0.0}  tableClass: --default=undefined, on some value remove default style on table and set this value
-		{v1.0.0}  removeButton: --default=false on true add button for delete item
+		{v1.0.0}  removeButton: --default=false on true append button for delete item
 		{v1.0.0}  sortClick: --default=false on true add button for delete item
-		{v1.0.1}	callbackRemove: --default=undefined -> function(item, index, callback){ callback(); }
-		{v1.0.1}	dataTemplate: --default="%data%",  
-		"%data%" OR {headers[0]: "%data%",...,headers[n]: "%data%"}
+		{v1.0.1}	callbackRemove: --default=function(item, index, callback){ callback(true); }
+		{v1.0.1}	dataTemplate: --default="%data%", "%data%" OR {headers[0]: "%data%",...,headers[n]: "%data%"}
 		{v1.0.1}	addRow: --default=false on true in table footer will be input boxes for adding new item in table. input boxes id = 'add-{header[i]}'  
-		{v1.0.1}	callbackAdd: --default=undefined -> function(item, callback){ callback(); }
+		{v1.0.1}	callbackAdd: --default=function(item, callback){ callback(true); 
+		{v1.0.2}	editRow: --default=false on true append button for edit current item. edit item occur in footer 
+		{v1.0.2}	callbackEdit: --default=function(olditem, newItem, index, callback){ callback(true); }
+
 	methods:
 		{v1.0.0}  render 
 		{v1.0.0}  optionsGet
 		{v1.0.0}  optionsSet
 		{v1.0.0}  addItems - object or object array with keys similar to options.header of objects
 		{v1.0.0}  removeItemById(id) - index of removing item
-		{v1.0.0}  sortItems(criteria) -   {id, sortAsc}
+		{v1.0.0}  sortItems(criteria) - {id, sortAsc}
 */
 (function SimpleNotification(global) {
-	
 	function applyStyles(node, styles) {
 		Object.keys(styles).forEach(function(key) {
 			node.style[key] = styles[key];
@@ -107,34 +114,53 @@
 			tr.appendChild(th);
 		}
 		var buttonAdd = document.createElement("input");
-		buttonAdd.setAttribute("id",'add-item');
+		buttonAdd.setAttribute("id",'footer-button');
 		buttonAdd.setAttribute("type",'button');
 		buttonAdd.setAttribute("value",'Add');
-		buttonAdd.addEventListener('click', (function(e){
-			var tfoot = getParentWithTagName(e.target, "tfoot");
-			var newItem = {};
-			this.options.headers.forEach(function(el){
-				newItem[el] = tfoot.querySelector("#add-"+el).value;
-			}, this.options.headers);
-			this.options.callbackAdd(newItem, (function(){ 
-					this.addItems(newItem);
-					this.options.headers.forEach(function(el){
-						tfoot.querySelector("#add-"+el).value = "";
-					}, this.options.headers);
-				}).bind(this))
-		}).bind(this));
+		buttonAdd.addEventListener('click', footerButtonClick.bind(this));
 		var td = document.createElement("td");
 		td.appendChild(buttonAdd);
 		tr.appendChild(td);
 		footer.appendChild(tr);
 		return footer;		
 	}
+	function footerButtonClick(e) {
+		var tfoot = getParentWithTagName(e.target, "tfoot");
+		var newItem = {};
+		this.options.headers.forEach(function(el){
+			newItem[el] = tfoot.querySelector("#add-"+el).value;
+		}, this.options.headers);
+		if (!this.options.editIndex) { // add
+			this.options.callbackAdd(newItem, (function(result){ 
+				if(!result){ return; }
+				this.addItems(newItem);
+				this.options.headers.forEach(function(el){
+					tfoot.querySelector("#add-"+el).value = "";
+				}, this.options.headers);
+			}).bind(this))
+		} else { // edit item with index
+			this.options.callbackEdit(this.options.oldItem, newItem
+			, this.options.editIndex, (function(result){ 
+				if(!result){ return; }
+				this.options.data[this.options.editIndex] = newItem;
+				// update UI: delete old row, append new row
+				this.addItems(newItem, false, this.options.editIndex);
+				this.options.headers.forEach(function(el){
+					tfoot.querySelector("#add-"+el).value = "";
+				}, this.options.headers);
+				this.options.oldItem = undefined;
+				this.options.editIndex = undefined;
+				tfoot.querySelector("#footer-button").value = "Add";
+			}).bind(this))
+		}
+	}
 	function isAddExtraColumn(option){
 
-		return option.removeButton || option.addRow ;
+		return option.removeButton||option.addRow||option.editRow;
 	}
-	function addItems(items, isAdd) {
+	function addItems(items, isAdd, replaceIndex) {
 		isAdd = isAdd == undefined ? true : false;
+		replaceIndex = replaceIndex;
 		if (!(items instanceof Array)) { 
 			items = [items];
 		}
@@ -148,14 +174,26 @@
 				var td = document.createElement("td");
 				if (this.options.removeButton) {
 					var button = document.createElement("button");
-					button.innerHTML = "-";
+					button.innerHTML = "Remove";
 					button.addEventListener("click", 
-						this.removeItemById.bind(this, undefined), false);
+						removeItemById.bind(this, undefined), false);
+					td.appendChild(button);
+				}
+				if (this.options.editRow){
+					var button = document.createElement("button");
+					button.innerHTML = "Edit";
+					button.addEventListener("click", 
+						prepareToEdit.bind(this), false);
 					td.appendChild(button);
 				}
 				tr.appendChild(td);
 			}
-			this.container.querySelector("tbody").appendChild(tr);
+			var tbody = this.container.querySelector("tbody")
+			if (replaceIndex == undefined) {
+				tbody.appendChild(tr);
+			} else {
+				tbody.replaceChild(tr, tbody.childNodes[replaceIndex]);
+			}
 		}
 		if (isAdd) {
 			this.options.data = this.options.data.concat(items);
@@ -166,6 +204,26 @@
 		if (thead) {
 			updateSortArrow.call(this);
 		}
+	}
+	function prepareToEdit(mouseEvent){
+		var tbody = this.container.querySelector("tbody");
+
+		var tr = getParentWithTagName(mouseEvent.target, "TR");
+		var index = Array.prototype.indexOf.call(tbody.children, tr);
+
+		if (index >= tbody.children.lenght) {
+			console.warn("wrong index number");
+			return;
+		}
+
+		this.options.editIndex = index;
+		this.options.oldItem = this.options.data.slice(index, index + 1)[0];
+		/// place oldvalue to footer input
+		tfoot = this.container.querySelector("tfoot");
+		this.options.headers.forEach(function(el){
+			tfoot.querySelector("#add-"+el).value = this.options.oldItem[el];
+		}, this);
+		tfoot.querySelector("#footer-button").value = "Edit";
 	}
 	function replaceTemplate(items, i, j) {
 		var inner;
@@ -200,9 +258,10 @@
 			console.warn("wrong index number");
 			return;
 		}
-		var deletingItem = this.options.data.slice(index, index+1);
+		var deletingItem = this.options.data.slice(index, index + 1);
 		this.options.callbackRemove(deletingItem, index
-		, function(){
+		, function(result){
+			if(!result){ return; }
 			tbody.removeChild(tbody.childNodes[index]);
 			var deletingItem = this.options.data.splice(index, 1);
 		});
@@ -277,10 +336,12 @@
 		this.options.removeButton = opt.removeButton || false;
 		this.options.sortClick = opt.sortClick || false;
 		this.options.tableClass = opt.tableClass;
-		this.options.callbackRemove = opt.callbackRemove || function(item, index,callback){ callback(); }
-		this.options.dataTemplate = opt.dataTemplate || "%data%"
+		this.options.callbackRemove = opt.callbackRemove || function(item, index,callback){ callback(true); }
+		this.options.dataTemplate = opt.dataTemplate || "%data%";
 		this.options.addRow = opt.addRow || false;
-		this.options.callbackAdd = opt.callbackAdd || function(item, callback){ callback(); }
+		this.options.callbackAdd = opt.callbackAdd || function(item, callback){ callback(true); }
+		this.options.editRow = opt.editRow || false;
+		this.options.callbackEdit = opt.callbackEdit || function(olditem, newItem, index, callback){ callback(true); }
 	}
 
 	function SimpleGrid(opt) { 
