@@ -13,7 +13,7 @@
 	3. add possibility to append items. on 'addRow'=true in table footer  appear fields and button for input new item. you can get new item from outside owerriding 'callbackAdd' . by default 'callbackAdd' = function(item, callback){ callback(); } 
 
 	v1.0.2 
-	1.change callbackRemove to send result if result true remove item from table
+	1. change callbackRemove to send result if result true remove item from table
 	2. change callbackAdd to send result if result true add item to table
 	3. add possibility to 'editRow' append button Edit, by clicking you can edit current item in footer. callbackEdit(result) if result true change item in table
 
@@ -30,6 +30,9 @@
 		{v1.0.1}	callbackAdd: --default=function(item, callback){ callback(true); 
 		{v1.0.2}	editRow: --default=false on true append button for edit current item. edit item occur in footer 
 		{v1.0.2}	callbackEdit: --default=function(olditem, newItem, index, callback){ callback(true); }
+	inner options:
+		{v1.0.2}	editIndex, oldItem show index and old value for edit item. set in  prepareToEdit method, reset in footerButtonClick/callbackEdit
+		{v1.0.3}	sortDescriptors array of SortDescriptor show whitch column sorting
 
 	methods:
 		{v1.0.0}  render 
@@ -37,9 +40,35 @@
 		{v1.0.0}  optionsSet
 		{v1.0.0}  addItems - object or object array with keys similar to options.header of objects
 		{v1.0.0}  removeItemById(id) - index of removing item
-		{v1.0.0}  sortItems(criteria) - {id, sortAsc}
+		{v1.0.0}  sortItems(headerName, asc) 
 */
 (function SimpleNotification(global) {
+	function SortDescriptor(asc){
+		this.asc = asc;
+	}
+	SortDescriptor.prototype.getSymbol = function(){
+		switch (this.asc) {
+			case true: return "&#9660;";
+			case false: return "&#9650;";
+			case undefined: return "&#9679;";
+		}
+	}
+	SortDescriptor.prototype.getAsc = function(){
+		return this.asc;
+	}
+	SortDescriptor.prototype.set = function (val) {
+
+		this.asc = val;
+	}
+	SortDescriptor.prototype.next= function(){
+		switch (this.asc) {
+			case true: this.asc = false; break;
+			case false: this.asc = undefined; break;
+			case undefined: this.asc = true; break;
+		}
+		return this.getSymbol();
+	}
+
 	function applyStyles(node, styles) {
 		Object.keys(styles).forEach(function(key) {
 			node.style[key] = styles[key];
@@ -56,8 +85,12 @@
 			var th = document.createElement("th");
 			th.innerHTML = this.options.headers[i];
 			if (this.options.sortClick) {
-				th.addEventListener("click", sortItems.bind(this, 
+				var sortSpan = document.createElement("span");
+				sortSpan.setAttribute("id","sort-" + this.options.headers[i]);
+				sortSpan.innerHTML = " "+this.options.sortDescriptors[i].getSymbol();
+				sortSpan.addEventListener("click", sortItems.bind(this, 
 					this.options.headers[i], undefined), false)
+				th.appendChild(sortSpan);
 			}
 			tr.appendChild(th);
 		}
@@ -197,12 +230,14 @@
 		}
 		if (isAdd) {
 			this.options.data = this.options.data.concat(items);
-			this.options.sortName = undefined;
-			this.options.sortAsc = undefined;
+			var currentSortId = this.options.sortDescriptors.findIndex(function(el){
+				return el.asc!=undefined;
+			});
+			this.options.sortDescriptors[currentSortId].set(undefined);
 		}
 		var thead = this.container.querySelector("thead");
 		if (thead) {
-			updateSortArrow.call(this);
+			updateSortArrows.call(this);
 		}
 	}
 	function prepareToEdit(mouseEvent){
@@ -267,26 +302,28 @@
 		});
 	}
 	function sortItems(sortName, sortAsc){
+		var currentSortId = this.options.sortDescriptors.findIndex(function(el){
+			return el.asc!=undefined;
+		});
+		var currentSortName = this.options.headers[currentSortId];
 		if (!sortName) {
-			sortName = this.options.sortName || this.options.headers[0];
+			console.warn("sortName should exists")
+			return;
 		}
-		if (sortName != this.options.sortName){
-			this.options.sortName = sortName;
-			this.options.sortAsc = true;
+		if (sortName != currentSortName){
+			if (currentSortId!=-1){this.options.sortDescriptors[currentSortId].set(undefined);}
+			currentSortId = this.options.headers.findIndex(function(el){return el==sortName;});
+			this.options.sortDescriptors[currentSortId].next();
 		}else{
-			this.options.sortAsc = !this.options.sortAsc;
+			this.options.sortDescriptors[currentSortId].next();
 		}
-		if (sortAsc == undefined) {
-			sortAsc = this.options.sortAsc;
-		} else {
-			this.options.sortAsc = sortAsc;
-		}
-
+		var sortAsc = this.options.sortDescriptors[currentSortId].getAsc();
 		fn = function(a, b){
 			return sortAsc ? 
 				a[sortName]<b[sortName] : 
 				a[sortName]>b[sortName];
 		}
+
 		var tbody = this.container.querySelector("tbody");
 		if (tbody) {
 			while (tbody.firstChild) {
@@ -295,30 +332,14 @@
 			this.options.data.sort(fn);
 			this.addItems(this.options.data, false);
 		}
+		updateSortArrows.call(this);
+	}
+	function updateSortArrows() {
 		var thead = this.container.querySelector("thead");
-		if (thead) {
-			updateSortArrow.call(this);
-		}
-	}
-	function createSortElement(asc) {
-		if (asc == undefined){ 
-			return undefined; 
-		}
-		var sortEl = document.createElement("div");
-		sortEl.className = "sort";
-		sortEl.innerHTML = asc ? "&#9660;" : "&#9650;";
-		return sortEl;
-	}
-	function updateSortArrow() {
-		var idx = this.options.headers.indexOf(this.options.sortName);
-		var sortEl = this.container.querySelector(".sort");
-		if (sortEl) {
-			sortEl.parentNode.removeChild(sortEl);
-		}
-		if (idx == -1) {return;}
-		var thead = this.container.querySelector("thead tr");
-		sortEl = createSortElement(this.options.sortAsc);
-		thead.childNodes[idx].appendChild(sortEl);
+		this.options.headers.forEach(function(el, idx){
+			var sortSpan = thead.querySelector("#sort-"+el);
+			sortSpan.innerHTML = " "+this.options.sortDescriptors[idx].getSymbol();
+		}, this);
 	}
 	function optionsGet() {
 
@@ -342,6 +363,11 @@
 		this.options.callbackAdd = opt.callbackAdd || function(item, callback){ callback(true); }
 		this.options.editRow = opt.editRow || false;
 		this.options.callbackEdit = opt.callbackEdit || function(olditem, newItem, index, callback){ callback(true); }
+
+		this.options.sortDescriptors=[];
+		this.options.headers.forEach(function(el){
+			this.options.sortDescriptors.push(new SortDescriptor(undefined));
+		}, this);
 	}
 
 	function SimpleGrid(opt) { 

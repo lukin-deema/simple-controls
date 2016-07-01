@@ -79,7 +79,7 @@ var tableOptions = {
 	editRow: true,
 	callbackEdit: callbackEdit,
 	// removeButton: true,
-	// sortClick: true,
+	sortClick: true,
 	// callbackRemove: callbackRemove,
 	// dataTemplate: //"<span style='color:red'>%data%</span>"
 	// {"name":"<a href='#%data%'><span style='color:red'>%data%</span></a>", 
