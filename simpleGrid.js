@@ -6,7 +6,9 @@
 	4. removeItemById(id) remove item. on removeButton=true can remove one item from UI. 
 	5. sortItems({id, sortAsc}) can sort items. on sortClick=true can sort items by clicking on header
 
-	v1.0.1. 1. add removeCallback witch call when removed item. default value = function(item, index, callback){ callback(); }
+	v1.0.1. 1. add callbackRemove witch call when removed item. default value = function(item, index, callback){ callback(); }
+	2. add data template for table cells can be string(apply to all column) or object(keys should be name of headers, each column will have different template)
+	3. add possibility to append items. on 'addRow'=true in table footer  appear fields and button for input new item. you can get new item from outside owerriding 'callbackAdd' . by default 'callbackAdd' = function(item, callback){ callback(); } 
 
 	options:
 		{v1.0.0}  headers: --default=[], array of string [headers[0],...,headers[n]]
@@ -16,9 +18,11 @@
 		{v1.0.0}  tableClass: --default=undefined, on some value remove default style on table and set this value
 		{v1.0.0}  removeButton: --default=false on true add button for delete item
 		{v1.0.0}  sortClick: --default=false on true add button for delete item
-		{v1.0.1}	removeCallback: --default=undefined -> function(item, index){}
+		{v1.0.1}	callbackRemove: --default=undefined -> function(item, index, callback){ callback(); }
 		{v1.0.1}	dataTemplate: --default="%data%",  
-							"%data%" OR {headers[0]: "%data%",...,headers[n]: "%data%"}
+		"%data%" OR {headers[0]: "%data%",...,headers[n]: "%data%"}
+		{v1.0.1}	addRow: --default=false on true in table footer will be input boxes for adding new item in table. input boxes id = 'add-{header[i]}'  
+		{v1.0.1}	callbackAdd: --default=undefined -> function(item, callback){ callback(); }
 	methods:
 		{v1.0.0}  render 
 		{v1.0.0}  optionsGet
@@ -50,7 +54,7 @@
 			}
 			tr.appendChild(th);
 		}
-		if (this.options.removeButton) {
+		if (isAddExtraColumn(this.options)) {
 			tr.appendChild(document.createElement("th"));
 		}
 		header.appendChild(tr);
@@ -85,7 +89,49 @@
 			if (this.options.data) {
 				this.addItems(this.options.data, false);
 			}
+			if (isAddFooter(this.options)){
+				table.appendChild(createFooter.call(this));
+			}
 		}
+	}
+	function isAddFooter(option){
+
+		return option.addRow;
+	}
+	function createFooter() {
+		var footer = document.createElement("tfoot");
+		var tr = document.createElement("tr");
+		for (var i = 0; i < this.options.headers.length; i++) {
+			var th = document.createElement("td");
+			th.innerHTML = "<input type='text' value='' id='add-"+this.options.headers[i]+"'></input>";
+			tr.appendChild(th);
+		}
+		var buttonAdd = document.createElement("input");
+		buttonAdd.setAttribute("id",'add-item');
+		buttonAdd.setAttribute("type",'button');
+		buttonAdd.setAttribute("value",'Add');
+		buttonAdd.addEventListener('click', (function(e){
+			var tfoot = getParentWithTagName(e.target, "tfoot");
+			var newItem = {};
+			this.options.headers.forEach(function(el){
+				newItem[el] = tfoot.querySelector("#add-"+el).value;
+			}, this.options.headers);
+			this.options.callbackAdd(newItem, (function(){ 
+					this.addItems(newItem);
+					this.options.headers.forEach(function(el){
+						tfoot.querySelector("#add-"+el).value = "";
+					}, this.options.headers);
+				}).bind(this))
+		}).bind(this));
+		var td = document.createElement("td");
+		td.appendChild(buttonAdd);
+		tr.appendChild(td);
+		footer.appendChild(tr);
+		return footer;		
+	}
+	function isAddExtraColumn(option){
+
+		return option.removeButton || option.addRow ;
 	}
 	function addItems(items, isAdd) {
 		isAdd = isAdd == undefined ? true : false;
@@ -98,14 +144,16 @@
 				var td = replaceTemplate.call(this, items, i, j);
 				tr.appendChild(td);
 			}
-			if (this.options.removeButton) {
-				var tdButton = document.createElement("td");
-				var button = document.createElement("button");
-				button.innerHTML = "-";
-				button.addEventListener("click", 
-					this.removeItemById.bind(this, undefined), false);
-				tdButton.appendChild(button);
-				tr.appendChild(tdButton);
+			if (isAddExtraColumn(this.options)) {
+				var td = document.createElement("td");
+				if (this.options.removeButton) {
+					var button = document.createElement("button");
+					button.innerHTML = "-";
+					button.addEventListener("click", 
+						this.removeItemById.bind(this, undefined), false);
+					td.appendChild(button);
+				}
+				tr.appendChild(td);
 			}
 			this.container.querySelector("tbody").appendChild(tr);
 		}
@@ -135,7 +183,7 @@
 	function getParentWithTagName(el, name){
 		do {
 			el = el.parentNode;
-		} while (el.tagName != name)
+		} while (el.tagName != name.toUpperCase())
 		return el;
 	}
 	function removeItemById(index, mouseEvent) {
@@ -153,7 +201,7 @@
 			return;
 		}
 		var deletingItem = this.options.data.slice(index, index+1);
-		this.options.removeCallback(deletingItem, index
+		this.options.callbackRemove(deletingItem, index
 		, function(){
 			tbody.removeChild(tbody.childNodes[index]);
 			var deletingItem = this.options.data.splice(index, 1);
@@ -226,11 +274,13 @@
 		}
 		this.options.headers = opt.headers || [];
 		this.options.data = opt.data || [];
-		this.options.removeButton = opt.removeButton != undefined ? opt.removeButton: false;
-		this.options.sortClick = opt.sortClick != undefined ? opt.sortClick: false;
+		this.options.removeButton = opt.removeButton || false;
+		this.options.sortClick = opt.sortClick || false;
 		this.options.tableClass = opt.tableClass;
-		this.options.removeCallback = opt.removeCallback || function(item, index,callback){ callback(); }
+		this.options.callbackRemove = opt.callbackRemove || function(item, index,callback){ callback(); }
 		this.options.dataTemplate = opt.dataTemplate || "%data%"
+		this.options.addRow = opt.addRow || false;
+		this.options.callbackAdd = opt.callbackAdd || function(item, callback){ callback(); }
 	}
 
 	function SimpleGrid(opt) { 

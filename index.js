@@ -56,20 +56,26 @@ function destroyTT() {
 	tt2.destroy();
 }
 ///////////// Table
-var callbackMethod = function(item, index, callback){
+var callbackRemove = function(item, index, callback){
 	alert("item: "+JSON.stringify(item)+"; index: "+index);
 	callback()
+}
+var callbackAdd = function(item, callback){
+	alert("item: "+JSON.stringify(item));
+	callback();
 }
 var tableOptions = {
 	headers: ["name", "age"],
 	containerIdName: "snTable",
 	data: [{"name":"Pit", "age":22},{"name":"Sally", "age":21}],
-	removeButton: true,
-	sortClick: true,
-	removeCallback: callbackMethod,
-	dataTemplate: //"<span style='color:red'>%data%</span>"
-	{"name":"<a href='#%data%'><span style='color:red'>%data%</span></a>", 
-	 "age":"<span style='color:blue'>%data%</span>"}
+	addRow: true,
+	callbackAdd: callbackAdd,
+	// removeButton: true,
+	// sortClick: true,
+	// callbackRemove: callbackRemove,
+	// dataTemplate: //"<span style='color:red'>%data%</span>"
+	// {"name":"<a href='#%data%'><span style='color:red'>%data%</span></a>", 
+	//  "age":"<span style='color:blue'>%data%</span>"}
 }
 
 function log(){
