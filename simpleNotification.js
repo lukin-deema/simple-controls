@@ -1,21 +1,3 @@
-/* SimpleNotification v1.0.0.
-	
-	v1.0.0. 1. create notification in container with id containerIdName
-	2. if exitCross=true closing nitification only by clicking on cross, on false close by clicking on container
-	3. notification position can be top or bottom
-	
-	options:
-		{v1.0.0}  containerIdName: --default="msg_message"
-		{v1.0.0}  exitCross: --default=true (true/false) on true notify close by clicking on cross, on false notify close by clicking on notify div
-		{v1.0.0}  position: --default="top" ('bottom'/'top')
-	methods:
-		{v1.0.0}  render 
-		{v1.0.0}  optionsGet
-		{v1.0.0}  optionsSet
-		{v1.0.0}  destroy - manual remove notification
-		{v1.0.0}  renderError - same as render(message, errorColor);
-		{v1.0.0}  renderSuccess - same as render(message, successColor);
-*/
 (function SimpleNotification(global) {
 	var successColor = '#13F101';
 	var errorColor ='#f00';
