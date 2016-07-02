@@ -52,7 +52,7 @@
 				newColumnAdd.setAttribute("id","add-new-column");
 				newColumnAdd.setAttribute("type","button");
 				newColumnAdd.setAttribute("value","Add");
-				newColumnAdd.addEventListener("click", headerButtonClick.bind(this));
+				newColumnAdd.addEventListener("click", appendNewColumnClick.bind(this));
 				span.appendChild(newColumn);
 				span.appendChild(newColumnAdd);
 				th.appendChild(span);
@@ -109,7 +109,7 @@
 			trFoot.removeChild(trFoot.childNodes[columnId]);    
 		}).bind(this));
 	}
-	function headerButtonClick(e) {
+	function appendNewColumnClick(e) {
 		var newColumnName = e.target.previousSibling.value;
 		if(this.options.headers.some(function(el){ return el == newColumnName; })){
 			console.warn("header mast be unique");
@@ -125,21 +125,21 @@
 			var thead = this.container.querySelector("thead");
 			this.options.sortDescriptors.push(new SortDescriptor(undefined));
 			var th = createHeaderCell.call(this, this.options.headers.length - 1);
-			appendNewCell(thead, 0, th);
+			appendNewColumnCell(thead, 0, th);
 
 			var tbody = this.container.querySelector("tbody");
 			for (i = 0; i < this.options.data.length; i++) {
 				var item = {};
 				item[newColumnName]="";
-				appendNewCell(tbody, i, replaceTemplate.call(this, item, newColumnName));
+				appendNewColumnCell(tbody, i, replaceTemplate.call(this, item, newColumnName));
 			}
 			
 			var tfoot = this.container.querySelector("tfoot");
 			var td = createFooterCell.call(this, newColumnName);
-			appendNewCell(tfoot, 0, td);
+			appendNewColumnCell(tfoot, 0, td);
 		}).bind(this));
 	}
-	function appendNewCell(_parent, i, newCell) {
+	function appendNewColumnCell(_parent, i, newCell) {
 		var tr = _parent.children[i];
 
 		if (tr.lastChild) {
@@ -148,7 +148,7 @@
 			tr.appendChild(newCell);
 		}
 	}
-	function addDefaultStyles(table){
+	function addTableDefaultStyles(table){
 		applyStyles(table, {
 			"border-collapse": "collapse",
 			"border-spacing": "0px"
@@ -163,7 +163,7 @@
 			// table header
 			table = document.createElement("table");
 			if (!this.options.tableClass) {
-				addDefaultStyles(table);
+				addTableDefaultStyles(table);
 			} else {
 				addClass(table, this.options.tableClass);
 			}
