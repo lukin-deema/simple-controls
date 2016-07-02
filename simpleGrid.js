@@ -118,12 +118,16 @@
 		this.options.callbackColumnInserting(newColumnName, (function(result){
 			if (!result) { return; }
 			this.options.headers.push(newColumnName);
+
 			for (var i = 0; i < this.options.data.length; i++) {
 				this.options.data[i][newColumnName] = "";
 			}
 
 			var thead = this.container.querySelector("thead");
 			this.options.sortDescriptors.push(new SortDescriptor(undefined));
+			if (this.options.dataTemplate instanceof Object) {
+				this.options.dataTemplate[newColumnName] = "%data%";
+			}
 			var th = createHeaderCell.call(this, this.options.headers.length - 1);
 			appendNewColumnCell(thead, 0, th);
 
@@ -284,7 +288,9 @@
 				var currentSortId = this.options.sortDescriptors.findIndex(function(el){
 					return el.asc !== undefined;
 				});
-				this.options.sortDescriptors[currentSortId].set(undefined);
+				if (currentSortId > -1) {
+					this.options.sortDescriptors[currentSortId].set(undefined);
+				}
 			}
 		}
 		if (this.options.sorting) {
@@ -314,11 +320,9 @@
 	function replaceTemplate(item, headerName) {
 		var inner;
 		if (this.options.dataTemplate instanceof Object) {
-			inner = this.options.dataTemplate[headerName]
-			.replace(/%data%/g, item[headerName]);
+			inner = this.options.dataTemplate[headerName].replace(/%data%/g, item[headerName]);
 		} else {
-			inner = this.options.dataTemplate
-			.replace(/%data%/g, item[headerName]);
+			inner = this.options.dataTemplate.replace(/%data%/g, item[headerName]);
 		}
 		var result = document.createElement("td");
 		result.innerHTML = inner;
@@ -345,11 +349,11 @@
 			return;
 		}
 		var deletingItem = this.options.data.slice(index, index + 1);
-		this.options.callbackDeleting(deletingItem, index, function(result){
+		this.options.callbackDeleting(deletingItem, index, (function(result){
 			if(!result){ return; }
 			tbody.removeChild(tbody.childNodes[index]);
 			var deletingItem = this.options.data.splice(index, 1);
-		});
+		}).bind(this));
 	}
 	function sortItems(sortName){
 		var currentSortId = this.options.sortDescriptors.findIndex(function(el){
