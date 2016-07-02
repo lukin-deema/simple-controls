@@ -20,42 +20,44 @@ SimpleGrid v1.0.2.
 		5. add possibility to append new column in table
 		6. add callbackSort/callbackAddColumn 
 		7. remove column and callbackRemoveColumn
-	v1.0.3 renames
-		removeItemById() -> removeItem
-		removeItem -> deleting
-		sortClick -> sorting
-		callbackSort -> callbackSorting
-		addRow -> inserting
-		callbackRemove -> callbackDeleting
-		callbackAdd -> callbackInserting
-		editRow -> editing
-		callbackEdit -> callbackEditing
-		addColumn -> columnInserting
-		callbackAddColumn -> callbackColumnInserting
-		removeColumn -> columnDeleting
-		callbackRemoveColumn -> callbackColumnDeleting
-
-
-
+	v1.0.3 
+		1. renames
+			removeItemById() -> removeItem
+			removeItem -> deleting
+			callbackRemove -> callbackDeleting
+			sortClick -> sorting
+			callbackSort -> callbackSorting
+			addRow -> inserting
+			callbackAdd -> callbackInserting
+			editRow -> editing
+			callbackEdit -> callbackEditing
+			addColumn -> columnInserting
+			callbackAddColumn -> callbackColumnInserting
+			removeColumn -> columnDeleting
+			callbackRemoveColumn -> callbackColumnDeleting
+		2. if callback{action} change default of {action} to true ({action}=> deleting, inserting, sorting, editing, columnInserting, columnDeleting)
+		3. when 'headers' not define check all data for object keys and get unique keys
 
 	options:
 		{v1.0.0}  headers: --default=[], array of string [headers[0],...,headers[n]]
 		{v1.0.0}  data: --default=[], can be added using addItems method [{headers[i]: value,..., headers[n]: value},{...}]
 		{v1.0.0}  containerIdName: --default="snTable"
 		{v1.0.0}  tableClass: --default=undefined, on some value remove default style on table and set this value
-		{v1.0.0}  deleting: --default=false on true append button for delete item
-		{v1.0.0}  sorting: --default=false on true add button for delete item
-		{v1.0.1}	callbackDeleting: --default=function(item, index, callback){ callback(true); }
-		{v1.0.1}	dataTemplate: --default="%data%", "%data%" OR {headers[0]: "%data%",...,headers[n]: "%data%"}
-		{v1.0.1}	inserting: --default=false on true in table footer will be input boxes for adding new item in table. input boxes id = 'add-{header[i]}'  
-		{v1.0.1}	callbackInserting: --default=function(item, callback){ callback(true); 
-		{v1.0.2}	editing: --default=false on true append button for edit current item. edit item occur in footer 
-		{v1.0.2}	callbackEditing: --default=function(olditem, newItem, index, callback){ callback(true); }
-		{v1.0.2}	columnInserting: --default=false, append buttor and inputbox for adding new column to table		
-		{v1.0.2}	callbackSorting: --default=function(columnName, columnAcs, callback){callback(true)}
-		{v1.0.2}	callbackColumnInserting: --default=function(columnName, callback){callback()}
-		{v1.0.2}	callbackColumnDeleting: --default=function(columnName, affectedCount, callback){callback(true)}
-		{v1.0.2}	columnDeleting: --default=false, append button and inputbox for remove column from table (looks like cross)
+		{v1.0.0}  deleting: --default=false(or true if defined callbackDeleting) on true append button for delete item
+		{v1.0.0}  sorting: --default=false(or true if defined callbackSorting) on true add button for delete item
+		{v1.0.1}  callbackDeleting: --default=function(item, index, callback){ callback(true); }
+		{v1.0.1}  dataTemplate: --default="%data%", "%data%" OR {headers[0]: "%data%",...,headers[n]: "%data%"}
+		{v1.0.1}  inserting: --default=false (or true if defined callbackInserting)  on true in table footer will be input boxes for adding new item in table. input boxes id = 'add-{header[i]}'  
+		{v1.0.1}  callbackInserting: --default=function(item, callback){ callback(true); 
+		{v1.0.2}  editing: --default=false (or true if defined callbackEditing) on true append button for edit current item. edit item occur in footer 
+		{v1.0.2}  callbackEditing: --default=function(olditem, newItem, index, callback){ callback(true); }
+		{v1.0.2}  columnInserting: --default=false (or true if defined callbackColumnInserting), append buttor and inputbox for adding new column to table		
+		{v1.0.2}  callbackSorting: --default=function(columnName, columnAcs, callback){callback(true)}
+		{v1.0.2}  callbackColumnInserting: --default=function(columnName, callback){callback(true)}
+		{v1.0.2}  callbackColumnDeleting: --default=function(columnName, affectedCount, callback){callback(true)}
+		{v1.0.2}  columnDeleting: --default=false (or true if defined callbackColumnDeleting), append button and inputbox for remove column from table (looks like cross)
+
+
 	inner options:
 		{v1.0.2}	editIndex&oldItem show index and old value for edit item. set in  prepareToEdit method, reset in footerButtonClick/callbackEditing
 		{v1.0.2}	sortDescriptors array of SortDescriptor show whitch column sorting

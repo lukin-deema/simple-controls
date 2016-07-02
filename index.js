@@ -91,20 +91,20 @@ var callbackColumnDeleting = function(columnName, affectedCount, callback){
 	callback(true);
 }
 var tableOptions = {
-	headers: ["name", "age"],
+	////headers: ["name", "age"],
 	containerIdName: "snTable",
 	data: [{"name":"Pit", "age":22},{"name":"Sally", "age":21}],
-	inserting: true,
+	////inserting: true,
 	callbackInserting: callbackInserting,
-	editing: true,
+	////editing: true,
 	callbackEditing: callbackEditing,
-	columnInserting: true,
+	////columnInserting: true,
 	callbackColumnInserting: callbackColumnInserting,
-	sorting: true,
+	////sorting: true,
 	callbackSorting: callbackSorting,
-	columnDeleting: true,
+	////columnDeleting: true,
 	callbackColumnDeleting: callbackColumnDeleting,
-	deleting: true,
+	////deleting: true,
 	callbackDeleting: callbackDeleting,
 	// dataTemplate: "<span style='color:red'>%data%</span>"
 	dataTemplate: {"name":"<a href='#%data%'><span style='color:red'>%data%</span></a>", "age":"<span style='color:blue'>%data%</span>"}
