@@ -19,7 +19,7 @@
 		4. refactor sorting, add sorting icon to header for sort click
 		5. add possibility to append new column in table
 		6. add callbackSort/callbackAddColumn 
-		!7. remove column and callbackRemoveColumn
+		7. remove column and callbackRemoveColumn
 
 	options:
 		{v1.0.0}  headers: --default=[], array of string [headers[0],...,headers[n]]
@@ -35,10 +35,10 @@
 		{v1.0.2}	editRow: --default=false on true append button for edit current item. edit item occur in footer 
 		{v1.0.2}	callbackEdit: --default=function(olditem, newItem, index, callback){ callback(true); }
 		{v1.0.2}	addColumn: --default=false, append buttor and inputbox for adding new column to table		
-		{v1.0.2}	callbackSort: --default=function(columnName, columnAcs, callback){callback()}
+		{v1.0.2}	callbackSort: --default=function(columnName, columnAcs, callback){callback(true)}
 		{v1.0.2}	callbackAddColumn: --default=function(columnName, callback){callback()}
-		!{v1.0.2}	callbackRemoveColumn: --default= ?
-		!{v1.0.2}	removeColumn: --default=false, append button and inputbox for remove column from table (looks like cross)
+		{v1.0.2}	callbackRemoveColumn: --default=function(columnName, affectedCount, callback){callback(true)}
+		{v1.0.2}	removeColumn: --default=false, append button and inputbox for remove column from table (looks like cross)
 	inner options:
 		{v1.0.2}	editIndex&oldItem show index and old value for edit item. set in  prepareToEdit method, reset in footerButtonClick/callbackEdit
 		{v1.0.2}	sortDescriptors array of SortDescriptor show whitch column sorting
@@ -129,7 +129,39 @@
 				this.options.headers[i], undefined), false)
 			th.appendChild(sortSpan);
 		}
+		if (this.options.removeColumn) {
+			var removeSpan = document.createElement("span");
+			removeSpan.innerHTML = " &#215;";
+			removeSpan.addEventListener("click", removeTableColumn.bind(this, 
+				this.options.headers[i]), false)
+			th.appendChild(removeSpan);
+		}
 		return th;
+	}
+	function removeTableColumn(columnName) {
+		var affectedCount = 0;
+		this.options.data.forEach(function(el){
+			if (el[columnName]) {
+				affectedCount++;
+			}
+		});
+		this.options.callbackRemoveColumn(columnName, affectedCount, (function(result){
+			if (!result) { return; }
+			columnId = this.options.headers.indexOf(columnName);
+
+			var trHead = this.container.querySelector("thead tr");
+			trHead.removeChild(trHead.childNodes[columnId]);  
+			this.options.headers.splice(columnId, 1);
+
+			trBody = this.container.querySelector("tbody");
+			for (var i = 0; i < trBody.children.length; i++) {
+				trBody.children[i].removeChild(trBody.children[i].childNodes[columnId]); 
+				delete this.options.data[i][columnName];
+			}
+
+			trFoot = this.container.querySelector("tfoot tr");
+			trFoot.removeChild(trFoot.childNodes[columnId]);    
+		}).bind(this))
 	}
 	function headerButtonClick(e) {
 		var newColumnName = e.target.previousSibling.value;
@@ -441,7 +473,6 @@
 		this.options.callbackAdd = opt.callbackAdd || function(item, callback){ callback(true); }
 		this.options.editRow = opt.editRow || false;
 		this.options.callbackEdit = opt.callbackEdit || function(olditem, newItem, index, callback){ callback(true); }
-
 		this.options.sortDescriptors=[];
 		this.options.headers.forEach(function(el){
 			this.options.sortDescriptors.push(new SortDescriptor(undefined));
@@ -449,6 +480,8 @@
 		this.options.addColumn = opt.addColumn || false;
 		this.options.callbackSort	= opt.callbackSort || function(columnName, columnAcs, callback){callback(true)}
 		this.options.callbackAddColumn = opt.callbackAddColumn || function(columnName, callback){callback(true)}
+		this.options.removeColumn = opt.removeColumn || false;
+		this.options.callbackRemoveColumn = opt.callbackRemoveColumn || function(columnName, affectedCount, callback){callback(true)}
 	}
 
 	function SimpleGrid(opt) { 

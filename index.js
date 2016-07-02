@@ -58,25 +58,36 @@ function destroyTT() {
 ///////////// Table
 var callbackRemove = function(item, index, callback){
 	alert("item: "+JSON.stringify(item)+"; index: "+index);
+	log();
 	callback(true)
 }
 var callbackAdd = function(item, callback){
 	alert("item: "+JSON.stringify(item));
+	log();
 	callback(true);
 }
 var callbackSort = function(columnName, columnAcs, callback){
 	alert("columnName: "+JSON.stringify(columnName) 
 		+";columnAcs: "+JSON.stringify(columnAcs));
+	log();
 	callback(true);
 }
 var callbackEdit = function(oldItem, newItem, index, callback){
 	alert("oldItem: "+JSON.stringify(oldItem)
 		+"newItem: "+JSON.stringify(newItem)
 		+"index: "+JSON.stringify(index));
+	log();
 	callback(true);
 }
 var callbackAddColumn = function(columnName, callback){
 	alert("columnName: "+JSON.stringify(columnName));
+	log();
+	callback(true);
+}
+var callbackRemoveColumn = function(columnName, affectedCount, callback){
+	alert("columnName: "+JSON.stringify(columnName)
+		+"affectedCount: "+JSON.stringify(affectedCount));
+	log();
 	callback(true);
 }
 var tableOptions = {
@@ -91,6 +102,8 @@ var tableOptions = {
 	callbackAddColumn: callbackAddColumn,
 	sortClick: true,
 	callbackSort: callbackSort,
+	removeColumn: true,
+	callbackRemoveColumn: callbackRemoveColumn,
 	// removeButton: true,
 	// callbackRemove: callbackRemove,
 	// dataTemplate: "<span style='color:red'>%data%</span>"
