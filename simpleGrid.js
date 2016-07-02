@@ -280,13 +280,14 @@
 		}
 		if (isAdd) {
 			this.options.data = this.options.data.concat(items);
-			var currentSortId = this.options.sortDescriptors.findIndex(function(el){
-				return el.asc !== undefined;
-			});
-			this.options.sortDescriptors[currentSortId].set(undefined);
+			if(this.options.sortClick){
+				var currentSortId = this.options.sortDescriptors.findIndex(function(el){
+					return el.asc !== undefined;
+				});
+				this.options.sortDescriptors[currentSortId].set(undefined);
+			}
 		}
-		var thead = this.container.querySelector("thead");
-		if (thead) {
+		if (this.options.sortClick) {
 			updateSortArrows.call(this);
 		}
 	}
