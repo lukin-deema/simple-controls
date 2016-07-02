@@ -33,7 +33,7 @@
 	inner options:
 		{v1.0.2}	editIndex, oldItem show index and old value for edit item. set in  prepareToEdit method, reset in footerButtonClick/callbackEdit
 		{v1.0.3}	sortDescriptors array of SortDescriptor show whitch column sorting
-
+		!{v1.0.4}	addColumn: --default=false, append buttor and inputbox for adding new column to table
 	methods:
 		{v1.0.0}  render 
 		{v1.0.0}  optionsGet
@@ -54,6 +54,7 @@
 		}
 	}
 	SortDescriptor.prototype.getAsc = function(){
+
 		return this.asc;
 	}
 	SortDescriptor.prototype.set = function (val) {
@@ -82,28 +83,87 @@
 		var header = document.createElement("thead");
 		var tr = document.createElement("tr");
 		for (var i = 0; i < this.options.headers.length; i++) {
-			var th = document.createElement("th");
-			th.innerHTML = this.options.headers[i];
-			if (this.options.sortClick) {
-				var sortSpan = document.createElement("span");
-				sortSpan.setAttribute("id","sort-" + this.options.headers[i]);
-				sortSpan.innerHTML = " "+this.options.sortDescriptors[i].getSymbol();
-				sortSpan.addEventListener("click", sortItems.bind(this, 
-					this.options.headers[i], undefined), false)
-				th.appendChild(sortSpan);
-			}
+			var th = createHeaderCell.call(this, i);
 			tr.appendChild(th);
 		}
 		if (isAddExtraColumn(this.options)) {
-			tr.appendChild(document.createElement("th"));
+			if (this.options.addColumn) {
+				var th = document.createElement("th");
+				var span = document.createElement("span");
+				var newColumn = document.createElement("input");
+				newColumn.setAttribute("id","new-column");
+				newColumn.setAttribute("type","text");
+				var newColumnAdd = document.createElement("input");
+				newColumnAdd.setAttribute("id","add-new-column");
+				newColumnAdd.setAttribute("type","button");
+				newColumnAdd.setAttribute("value","Add");
+				newColumnAdd.addEventListener("click", headerButtonClick.bind(this));
+				span.appendChild(newColumn);
+				span.appendChild(newColumnAdd);
+				th.appendChild(span);
+				tr.appendChild(th);
+			} else {
+				tr.appendChild(document.createElement("th"));
+			}
 		}
 		header.appendChild(tr);
 		return header;
 	}
+	function createHeaderCell(i) {
+		var th = document.createElement("th");
+		th.innerHTML = this.options.headers[i];
+		if (this.options.sortClick) {
+			var sortSpan = document.createElement("span");
+			sortSpan.setAttribute("id","sort-" + this.options.headers[i]);
+			sortSpan.innerHTML = " "+this.options.sortDescriptors[i].getSymbol();
+			sortSpan.addEventListener("click", sortItems.bind(this, 
+				this.options.headers[i], undefined), false)
+			th.appendChild(sortSpan);
+		}
+		return th;
+	}
+	function headerButtonClick(e) {
+		var newColumnName = e.target.previousSibling.value;
+		if(this.options.headers.some(function(el){ return el == newColumnName; })){
+			console.warn("header mast be unique");
+			return;
+		}
+
+		this.options.headers.push(newColumnName);
+		for (var i = 0; i < this.options.data.length; i++) {
+			this.options.data[i][newColumnName] = "";
+		}		
+
+		var thead = this.container.querySelector("thead");
+		this.options.sortDescriptors.push(new SortDescriptor(undefined));
+		var th = createHeaderCell.call(this, this.options.headers.length - 1)
+		appendNewCell(thead, 0, th);
+
+		var tbody = this.container.querySelector("tbody");
+		for (var i = 0; i < this.options.data.length; i++) {
+			var item = {};
+			item[newColumnName]="";
+			var td = replaceTemplate.call(this, item, newColumnName);	
+			appendNewCell(tbody, i, td);
+		}
+		
+		var tfoot = this.container.querySelector("tfoot");
+		var td = createFooterCell.call(this, newColumnName);
+		appendNewCell(tfoot, 0, td);
+	}
+	function appendNewCell(_parent, i, newCell) {
+		var tr = _parent.children[i];
+
+		if (tr.lastChild) {
+			tr.insertBefore(newCell, tr.lastChild);
+		} else {
+			tr.appendChild(newCell);
+		}
+	}
 	function addDefaultStyles(table){
 		applyStyles(table, {
-			'border-collapse': 'collapse',
-			'border-spacing': '0px'
+			"border-collapse": "collapse",
+			"border-spacing": "0px"
 		})
 		var style = document.createElement("style");
 		style.innerHTML = "table th, table td { padding: 5px; border: 1px solid black }";
@@ -138,19 +198,23 @@
 
 		return option.addRow;
 	}
+	function createFooterCell(headerName) {
+		var td = document.createElement("td");
+		td.innerHTML = "<input type='text' value='' id='add-"+headerName+"'></input>";
+		return td;
+	}
 	function createFooter() {
 		var footer = document.createElement("tfoot");
 		var tr = document.createElement("tr");
 		for (var i = 0; i < this.options.headers.length; i++) {
-			var th = document.createElement("td");
-			th.innerHTML = "<input type='text' value='' id='add-"+this.options.headers[i]+"'></input>";
-			tr.appendChild(th);
+			var td = createFooterCell(this.options.headers[i])
+			tr.appendChild(td);
 		}
 		var buttonAdd = document.createElement("input");
-		buttonAdd.setAttribute("id",'footer-button');
-		buttonAdd.setAttribute("type",'button');
-		buttonAdd.setAttribute("value",'Add');
-		buttonAdd.addEventListener('click', footerButtonClick.bind(this));
+		buttonAdd.setAttribute("id","footer-button");
+		buttonAdd.setAttribute("type","button");
+		buttonAdd.setAttribute("value","Add");
+		buttonAdd.addEventListener("click", footerButtonClick.bind(this));
 		var td = document.createElement("td");
 		td.appendChild(buttonAdd);
 		tr.appendChild(td);
@@ -163,7 +227,7 @@
 		this.options.headers.forEach(function(el){
 			newItem[el] = tfoot.querySelector("#add-"+el).value;
 		}, this.options.headers);
-		if (!this.options.editIndex) { // add
+		if (this.options.editIndex == undefined) { // add
 			this.options.callbackAdd(newItem, (function(result){ 
 				if(!result){ return; }
 				this.addItems(newItem);
@@ -189,7 +253,7 @@
 	}
 	function isAddExtraColumn(option){
 
-		return option.removeButton||option.addRow||option.editRow;
+		return option.removeButton||option.addRow||option.editRow||option.addColumn;
 	}
 	function addItems(items, isAdd, replaceIndex) {
 		isAdd = isAdd == undefined ? true : false;
@@ -200,7 +264,7 @@
 		for (var i = 0; i < items.length; i++) {
 			var tr = document.createElement("tr");
 			for (var j = 0; j < this.options.headers.length; j++) {
-				var td = replaceTemplate.call(this, items, i, j);
+				var td = replaceTemplate.call(this, items[i], this.options.headers[j]);
 				tr.appendChild(td);
 			}
 			if (isAddExtraColumn(this.options)) {
@@ -260,14 +324,14 @@
 		}, this);
 		tfoot.querySelector("#footer-button").value = "Edit";
 	}
-	function replaceTemplate(items, i, j) {
+	function replaceTemplate(item, headerName) {
 		var inner;
 		if (this.options.dataTemplate instanceof Object) {
-			inner = this.options.dataTemplate[this.options.headers[j]]
-			.replace(/%data%/g, items[i][this.options.headers[j]]);
+			inner = this.options.dataTemplate[headerName]
+			.replace(/%data%/g, item[headerName]);
 		} else {
 			inner = this.options.dataTemplate
-			.replace(/%data%/g, items[i][this.options.headers[j]]);
+			.replace(/%data%/g, item[headerName]);
 		}
 		var result = document.createElement("td");
 		result.innerHTML = inner;
@@ -368,6 +432,7 @@
 		this.options.headers.forEach(function(el){
 			this.options.sortDescriptors.push(new SortDescriptor(undefined));
 		}, this);
+		this.options.addColumn = opt.addColumn || false;
 	}
 
 	function SimpleGrid(opt) { 

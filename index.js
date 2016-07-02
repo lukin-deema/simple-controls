@@ -78,6 +78,7 @@ var tableOptions = {
 	callbackAdd: callbackAdd,
 	editRow: true,
 	callbackEdit: callbackEdit,
+	addColumn: true,
 	// removeButton: true,
 	sortClick: true,
 	// callbackRemove: callbackRemove,
