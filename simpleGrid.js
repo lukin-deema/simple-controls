@@ -1,21 +1,25 @@
 /* SimpleGrid v1.0.2.
 
 	v1.0.0.	
-	1. create table in container with id 'containerIdName'.
-	2. table with headers and data. data is array of object where keys same as values in header. 
-	3. by default table have simple style. 'tableClass' replace default styles to value from options.tableClass. 
-	4. removeItemById(id) remove item. on removeButton=true can remove one item from UI. 
-	5. sortItems({id, sortAsc}) can sort items. on sortClick=true can sort items by clicking on header
+		1. create table in container with id 'containerIdName'.
+		2. table with headers and data. data is array of object where keys same as values in header. 
+		3. by default table have simple style. 'tableClass' replace default styles to value from options.tableClass. 
+		4. removeItemById(id) remove item. on removeButton=true can remove one item from UI. 
+		5. sortItems({id, sortAsc}) can sort items. on sortClick=true can sort items by clicking on header
 
 	v1.0.1. 
-	1. add callbackRemove witch call when removed item. default value = function(item, index, callback){ callback(); }
-	2. add data template for table cells can be string(apply to all column) or object(keys should be name of headers, each column will have different template)
-	3. add possibility to append items. on 'addRow'=true in table footer  appear fields and button for input new item. you can get new item from outside owerriding 'callbackAdd' . by default 'callbackAdd' = function(item, callback){ callback(); } 
+		1. add callbackRemove witch call when removed item. default value = function(item, index, callback){ callback(); }
+		2. add data template for table cells can be string(apply to all column) or object(keys should be name of headers, each column will have different template)
+		3. add possibility to append items. on 'addRow'=true in table footer  appear fields and button for input new item. you can get new item from outside owerriding 'callbackAdd' . by default 'callbackAdd' = function(item, callback){ callback(); } 
 
 	v1.0.2 
-	1. change callbackRemove to send result if result true remove item from table
-	2. change callbackAdd to send result if result true add item to table
-	3. add possibility to 'editRow' append button Edit, by clicking you can edit current item in footer. callbackEdit(result) if result true change item in table
+		1. change callbackRemove(result)  to send result if result true remove item from table
+		2. change callbackAdd(result)  to send result if result true add item to table
+		3. add possibility to 'editRow' append button Edit, by clicking you can edit current item in footer. callbackEdit(result) if result true change item in table
+		4. refactor sorting, add sorting icon to header for sort click
+		5. add possibility to append new column in table
+		6. add callbackSort/callbackAddColumn 
+		!7. remove column and callbackRemoveColumn
 
 	options:
 		{v1.0.0}  headers: --default=[], array of string [headers[0],...,headers[n]]
@@ -30,10 +34,15 @@
 		{v1.0.1}	callbackAdd: --default=function(item, callback){ callback(true); 
 		{v1.0.2}	editRow: --default=false on true append button for edit current item. edit item occur in footer 
 		{v1.0.2}	callbackEdit: --default=function(olditem, newItem, index, callback){ callback(true); }
+		{v1.0.2}	addColumn: --default=false, append buttor and inputbox for adding new column to table		
+		{v1.0.2}	callbackSort: --default=function(columnName, columnAcs, callback){callback()}
+		{v1.0.2}	callbackAddColumn: --default=function(columnName, callback){callback()}
+		!{v1.0.2}	callbackRemoveColumn: --default= ?
+		!{v1.0.2}	removeColumn: --default=false, append button and inputbox for remove column from table (looks like cross)
 	inner options:
-		{v1.0.2}	editIndex, oldItem show index and old value for edit item. set in  prepareToEdit method, reset in footerButtonClick/callbackEdit
-		{v1.0.3}	sortDescriptors array of SortDescriptor show whitch column sorting
-		!{v1.0.4}	addColumn: --default=false, append buttor and inputbox for adding new column to table
+		{v1.0.2}	editIndex&oldItem show index and old value for edit item. set in  prepareToEdit method, reset in footerButtonClick/callbackEdit
+		{v1.0.2}	sortDescriptors array of SortDescriptor show whitch column sorting
+
 	methods:
 		{v1.0.0}  render 
 		{v1.0.0}  optionsGet
@@ -128,28 +137,30 @@
 			console.warn("header mast be unique");
 			return;
 		}
+		this.options.callbackAddColumn(newColumnName, (function(result){
+			if (!result) { return; }
+			this.options.headers.push(newColumnName);
+			for (var i = 0; i < this.options.data.length; i++) {
+				this.options.data[i][newColumnName] = "";
+			}
 
-		this.options.headers.push(newColumnName);
-		for (var i = 0; i < this.options.data.length; i++) {
-			this.options.data[i][newColumnName] = "";
-		}		
+			var thead = this.container.querySelector("thead");
+			this.options.sortDescriptors.push(new SortDescriptor(undefined));
+			var th = createHeaderCell.call(this, this.options.headers.length - 1)
+			appendNewCell(thead, 0, th);
 
-		var thead = this.container.querySelector("thead");
-		this.options.sortDescriptors.push(new SortDescriptor(undefined));
-		var th = createHeaderCell.call(this, this.options.headers.length - 1)
-		appendNewCell(thead, 0, th);
-
-		var tbody = this.container.querySelector("tbody");
-		for (var i = 0; i < this.options.data.length; i++) {
-			var item = {};
-			item[newColumnName]="";
-			var td = replaceTemplate.call(this, item, newColumnName);	
-			appendNewCell(tbody, i, td);
-		}
-		
-		var tfoot = this.container.querySelector("tfoot");
-		var td = createFooterCell.call(this, newColumnName);
-		appendNewCell(tfoot, 0, td);
+			var tbody = this.container.querySelector("tbody");
+			for (var i = 0; i < this.options.data.length; i++) {
+				var item = {};
+				item[newColumnName]="";
+				var td = replaceTemplate.call(this, item, newColumnName);	
+				appendNewCell(tbody, i, td);
+			}
+			
+			var tfoot = this.container.querySelector("tfoot");
+			var td = createFooterCell.call(this, newColumnName);
+			appendNewCell(tfoot, 0, td);
+		}).bind(this))
 	}
 	function appendNewCell(_parent, i, newCell) {
 		var tr = _parent.children[i];
@@ -389,14 +400,17 @@
 		}
 
 		var tbody = this.container.querySelector("tbody");
-		if (tbody) {
-			while (tbody.firstChild) {
-    		tbody.removeChild(tbody.firstChild);
+		this.options.callbackSort(this.options.headers[currentSortId], sortAsc, (function(result){
+			if (!result) { return; }
+			if (tbody) {
+				while (tbody.firstChild) {
+					tbody.removeChild(tbody.firstChild);
+				}
+				this.options.data.sort(fn);
+				this.addItems(this.options.data, false);
 			}
-			this.options.data.sort(fn);
-			this.addItems(this.options.data, false);
-		}
-		updateSortArrows.call(this);
+			updateSortArrows.call(this);
+		}).bind(this))
 	}
 	function updateSortArrows() {
 		var thead = this.container.querySelector("thead");
@@ -433,6 +447,8 @@
 			this.options.sortDescriptors.push(new SortDescriptor(undefined));
 		}, this);
 		this.options.addColumn = opt.addColumn || false;
+		this.options.callbackSort	= opt.callbackSort || function(columnName, columnAcs, callback){callback(true)}
+		this.options.callbackAddColumn = opt.callbackAddColumn || function(columnName, callback){callback(true)}
 	}
 
 	function SimpleGrid(opt) { 

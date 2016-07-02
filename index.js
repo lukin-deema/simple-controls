@@ -64,10 +64,19 @@ var callbackAdd = function(item, callback){
 	alert("item: "+JSON.stringify(item));
 	callback(true);
 }
+var callbackSort = function(columnName, columnAcs, callback){
+	alert("columnName: "+JSON.stringify(columnName) 
+		+";columnAcs: "+JSON.stringify(columnAcs));
+	callback(true);
+}
 var callbackEdit = function(oldItem, newItem, index, callback){
 	alert("oldItem: "+JSON.stringify(oldItem)
 		+"newItem: "+JSON.stringify(newItem)
 		+"index: "+JSON.stringify(index));
+	callback(true);
+}
+var callbackAddColumn = function(columnName, callback){
+	alert("columnName: "+JSON.stringify(columnName));
 	callback(true);
 }
 var tableOptions = {
@@ -79,12 +88,13 @@ var tableOptions = {
 	editRow: true,
 	callbackEdit: callbackEdit,
 	addColumn: true,
-	// removeButton: true,
+	callbackAddColumn: callbackAddColumn,
 	sortClick: true,
+	callbackSort: callbackSort,
+	// removeButton: true,
 	// callbackRemove: callbackRemove,
-	// dataTemplate: //"<span style='color:red'>%data%</span>"
-	// {"name":"<a href='#%data%'><span style='color:red'>%data%</span></a>", 
-	//  "age":"<span style='color:blue'>%data%</span>"}
+	// dataTemplate: "<span style='color:red'>%data%</span>"
+	// dataTemplate: {"name":"<a href='#%data%'><span style='color:red'>%data%</span></a>", "age":"<span style='color:blue'>%data%</span>"}
 }
 
 function log(){
