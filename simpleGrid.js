@@ -42,7 +42,7 @@
 			tr.appendChild(createHeaderCell.call(this, i));
 		}
 		if (isAddExtraColumn(this.options)) {
-			if (this.options.addColumn) {
+			if (this.options.columnInserting) {
 				var th = document.createElement("th");
 				var span = document.createElement("span");
 				var newColumn = document.createElement("input");
@@ -67,7 +67,7 @@
 	function createHeaderCell(i) {
 		var th = document.createElement("th");
 		th.innerHTML = this.options.headers[i];
-		if (this.options.sortClick) {
+		if (this.options.sorting) {
 			var sortSpan = document.createElement("span");
 			sortSpan.setAttribute("id","sort-" + this.options.headers[i]);
 			sortSpan.innerHTML = " "+this.options.sortDescriptors[i].getSymbol();
@@ -75,7 +75,7 @@
 				this.options.headers[i]), false);
 			th.appendChild(sortSpan);
 		}
-		if (this.options.removeColumn) {
+		if (this.options.columnDeleting) {
 			var removeSpan = document.createElement("span");
 			removeSpan.innerHTML = " &#215;";
 			removeSpan.addEventListener("click", removeTableColumn.bind(this, 
@@ -91,7 +91,7 @@
 				affectedCount++;
 			}
 		});
-		this.options.callbackRemoveColumn(columnName, affectedCount, (function(result){
+		this.options.callbackColumnDeleting(columnName, affectedCount, (function(result){
 			if (!result) { return; }
 			columnId = this.options.headers.indexOf(columnName);
 
@@ -115,7 +115,7 @@
 			console.warn("header mast be unique");
 			return;
 		}
-		this.options.callbackAddColumn(newColumnName, (function(result){
+		this.options.callbackColumnInserting(newColumnName, (function(result){
 			if (!result) { return; }
 			this.options.headers.push(newColumnName);
 			for (var i = 0; i < this.options.data.length; i++) {
@@ -184,7 +184,7 @@
 	}
 	function isAddFooter(option){
 
-		return option.addRow;
+		return option.inserting;
 	}
 	function createFooterCell(headerName) {
 		var td = document.createElement("td");
@@ -215,7 +215,7 @@
 			newItem[el] = tfoot.querySelector("#add-"+el).value;
 		}, this.options.headers);
 		if (this.options.editIndex === undefined) { // add
-			this.options.callbackAdd(newItem, (function(result){ 
+			this.options.callbackInserting(newItem, (function(result){ 
 				if(!result){ return; }
 				this.addItems(newItem);
 				this.options.headers.forEach(function(el){
@@ -223,7 +223,7 @@
 				}, this.options.headers);
 			}).bind(this));
 		} else { // edit item with index
-			this.options.callbackEdit(this.options.oldItem, newItem, this.options.editIndex, (function(result){ 
+			this.options.callbackEditing(this.options.oldItem, newItem, this.options.editIndex, (function(result){ 
 				if(!result){ return; }
 				this.options.data[this.options.editIndex] = newItem;
 				// update UI: delete old row, append new row
@@ -239,7 +239,7 @@
 	}
 	function isAddExtraColumn(option){
 
-		return option.removeButton||option.addRow||option.editRow||option.addColumn;
+		return option.deleting||option.inserting||option.editing||option.columnInserting;
 	}
 	function addItems(items, isAdd, replaceIndex) {
 		isAdd = isAdd === undefined ? true : false;
@@ -255,14 +255,14 @@
 			if (isAddExtraColumn(this.options)) {
 				var td = document.createElement("td");
 				var button;
-				if (this.options.removeButton) {
+				if (this.options.deleting) {
 					button = document.createElement("button");
 					button.innerHTML = "Remove";
 					button.addEventListener("click", 
-						removeItemById.bind(this, undefined), false);
+						removeItem.bind(this, undefined), false);
 					td.appendChild(button);
 				}
-				if (this.options.editRow){
+				if (this.options.editing){
 					button = document.createElement("button");
 					button.innerHTML = "Edit";
 					button.addEventListener("click", 
@@ -280,14 +280,14 @@
 		}
 		if (isAdd) {
 			this.options.data = this.options.data.concat(items);
-			if(this.options.sortClick){
+			if(this.options.sorting){
 				var currentSortId = this.options.sortDescriptors.findIndex(function(el){
 					return el.asc !== undefined;
 				});
 				this.options.sortDescriptors[currentSortId].set(undefined);
 			}
 		}
-		if (this.options.sortClick) {
+		if (this.options.sorting) {
 			updateSortArrows.call(this);
 		}
 	}
@@ -330,7 +330,7 @@
 		} while (el.tagName != name.toUpperCase());
 		return el;
 	}
-	function removeItemById(index, mouseEvent) {
+	function removeItem(index, mouseEvent) {
 		var tbody = this.container.querySelector("tbody");
 		if (!index) {
 			if (!mouseEvent) {
@@ -345,7 +345,7 @@
 			return;
 		}
 		var deletingItem = this.options.data.slice(index, index + 1);
-		this.options.callbackRemove(deletingItem, index, function(result){
+		this.options.callbackDeleting(deletingItem, index, function(result){
 			if(!result){ return; }
 			tbody.removeChild(tbody.childNodes[index]);
 			var deletingItem = this.options.data.splice(index, 1);
@@ -375,7 +375,7 @@
 		};
 
 		var tbody = this.container.querySelector("tbody");
-		this.options.callbackSort(this.options.headers[currentSortId], sortAsc, (function(result){
+		this.options.callbackSorting(this.options.headers[currentSortId], sortAsc, (function(result){
 			if (!result) { return; }
 			if (tbody) {
 				while (tbody.firstChild) {
@@ -407,24 +407,24 @@
 		}
 		this.options.headers = opt.headers || [];
 		this.options.data = opt.data || [];
-		this.options.removeButton = opt.removeButton || false;
-		this.options.sortClick = opt.sortClick || false;
+		this.options.deleting = opt.deleting || false;
+		this.options.sorting = opt.sorting || false;
 		this.options.tableClass = opt.tableClass;
-		this.options.callbackRemove = opt.callbackRemove || function(item, index,callback){ callback(true); };
+		this.options.callbackDeleting = opt.callbackDeleting || function(item, index,callback){ callback(true); };
 		this.options.dataTemplate = opt.dataTemplate || "%data%";
-		this.options.addRow = opt.addRow || false;
-		this.options.callbackAdd = opt.callbackAdd || function(item, callback){ callback(true); };
-		this.options.editRow = opt.editRow || false;
-		this.options.callbackEdit = opt.callbackEdit || function(olditem, newItem, index, callback){ callback(true); };
+		this.options.inserting = opt.inserting || false;
+		this.options.callbackInserting = opt.callbackInserting || function(item, callback){ callback(true); };
+		this.options.editing = opt.editing || false;
+		this.options.callbackEditing = opt.callbackEditing || function(olditem, newItem, index, callback){ callback(true); };
 		this.options.sortDescriptors=[];
 		this.options.headers.forEach(function(el){
 			this.options.sortDescriptors.push(new SortDescriptor(undefined));
 		}, this);
-		this.options.addColumn = opt.addColumn || false;
-		this.options.callbackSort	= opt.callbackSort || function(columnName, columnAcs, callback){ callback(true); };
-		this.options.callbackAddColumn = opt.callbackAddColumn || function(columnName, callback){ callback(true); };
-		this.options.removeColumn = opt.removeColumn || false;
-		this.options.callbackRemoveColumn = opt.callbackRemoveColumn || function(columnName, affectedCount, callback){ callback(true); };
+		this.options.columnInserting = opt.columnInserting || false;
+		this.options.callbackSorting	= opt.callbackSorting || function(columnName, columnAcs, callback){ callback(true); };
+		this.options.callbackColumnInserting = opt.callbackColumnInserting || function(columnName, callback){ callback(true); };
+		this.options.columnDeleting = opt.columnDeleting || false;
+		this.options.callbackColumnDeleting = opt.callbackColumnDeleting || function(columnName, affectedCount, callback){ callback(true); };
 	}
 
 	function SimpleGrid(opt) { 
@@ -434,7 +434,7 @@
 	SimpleGrid.prototype = { 
 		render: render,
 		addItems: addItems,
-		removeItemById: removeItemById,
+		removeItem: removeItem,
 		optionsGet: optionsGet, 
 		optionsSet: optionsSet,
 		sortItems: sortItems

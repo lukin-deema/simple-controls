@@ -56,35 +56,35 @@ function destroyTT() {
 	tt2.destroy();
 }
 ///////////// Table
-var callbackRemove = function(item, index, callback){
+var callbackDeleting = function(item, index, callback){
 	alert("item: "+JSON.stringify(item)+"; index: "+index);
 	log();
 	callback(true)
 }
-var callbackAdd = function(item, callback){
+var callbackInserting = function(item, callback){
 	alert("item: "+JSON.stringify(item));
 	log();
 	callback(true);
 }
-var callbackSort = function(columnName, columnAcs, callback){
+var callbackSorting = function(columnName, columnAcs, callback){
 	alert("columnName: "+JSON.stringify(columnName) 
 		+";columnAcs: "+JSON.stringify(columnAcs));
 	log();
 	callback(true);
 }
-var callbackEdit = function(oldItem, newItem, index, callback){
+var callbackEditing = function(oldItem, newItem, index, callback){
 	alert("oldItem: "+JSON.stringify(oldItem)
 		+"newItem: "+JSON.stringify(newItem)
 		+"index: "+JSON.stringify(index));
 	log();
 	callback(true);
 }
-var callbackAddColumn = function(columnName, callback){
+var callbackColumnInserting = function(columnName, callback){
 	alert("columnName: "+JSON.stringify(columnName));
 	log();
 	callback(true);
 }
-var callbackRemoveColumn = function(columnName, affectedCount, callback){
+var callbackColumnDeleting = function(columnName, affectedCount, callback){
 	alert("columnName: "+JSON.stringify(columnName)
 		+"affectedCount: "+JSON.stringify(affectedCount));
 	log();
@@ -94,20 +94,20 @@ var tableOptions = {
 	headers: ["name", "age"],
 	containerIdName: "snTable",
 	data: [{"name":"Pit", "age":22},{"name":"Sally", "age":21}],
-	addRow: true,
-	callbackAdd: callbackAdd,
-	editRow: true,
-	callbackEdit: callbackEdit,
-	addColumn: true,
-	callbackAddColumn: callbackAddColumn,
-	sortClick: true,
-	callbackSort: callbackSort,
-	removeColumn: true,
-	callbackRemoveColumn: callbackRemoveColumn,
-	// removeButton: true,
-	// callbackRemove: callbackRemove,
+	inserting: true,
+	callbackInserting: callbackInserting,
+	editing: true,
+	callbackEditing: callbackEditing,
+	columnInserting: true,
+	callbackColumnInserting: callbackColumnInserting,
+	sorting: true,
+	callbackSorting: callbackSorting,
+	columnDeleting: true,
+	callbackColumnDeleting: callbackColumnDeleting,
+	deleting: true,
+	callbackDeleting: callbackDeleting,
 	// dataTemplate: "<span style='color:red'>%data%</span>"
-	// dataTemplate: {"name":"<a href='#%data%'><span style='color:red'>%data%</span></a>", "age":"<span style='color:blue'>%data%</span>"}
+	dataTemplate: {"name":"<a href='#%data%'><span style='color:red'>%data%</span></a>", "age":"<span style='color:blue'>%data%</span>"}
 }
 
 function log(){
