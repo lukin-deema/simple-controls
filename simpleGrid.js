@@ -1,4 +1,6 @@
+/// SimpleGrid v1.0.3
 (function SimpleNotification(global) {
+	/// sortDescriptor
 	function SortDescriptor(asc){
 		this.asc = asc;
 	}
@@ -17,7 +19,7 @@
 
 		this.asc = val;
 	};
-	SortDescriptor.prototype.next= function(){
+	SortDescriptor.prototype.next = function(){
 		switch (this.asc) {
 			case true: this.asc = false; break;
 			case false: this.asc = undefined; break;
@@ -26,6 +28,7 @@
 		return this.getSymbol();
 	};
 
+	/// small helpers
 	function applyStyles(node, styles) {
 		Object.keys(styles).forEach(function(key) {
 			node.style[key] = styles[key];
@@ -35,6 +38,57 @@
 
 		element.className += element.className ? ' ' + _class : _class;
 	}
+	function isAddFooter(option){
+
+		return option.inserting;
+	}
+	function isAddExtraColumn(option){
+
+		return option.deleting||option.inserting||option.editing||option.columnInserting;
+	}
+	function getParentWithTagName(el, name){
+		do {
+			el = el.parentNode;
+		} while (el.tagName != name.toUpperCase());
+		return el;
+	}
+	function addTableDefaultStyles(table){
+		applyStyles(table, {
+			"border-collapse": "collapse",
+			"border-spacing": "0px"
+		});
+		var style = document.createElement("style");
+		style.innerHTML = "table th, table td { padding: 5px; border: 1px solid black }";
+		table.appendChild(style);
+	}
+
+	function render() {
+		var table = this.container.querySelector("table");
+		if (!table) {
+			// table header
+			table = document.createElement("table");
+			if (!this.options.tableClass) {
+				addTableDefaultStyles(table);
+			} else {
+				addClass(table, this.options.tableClass);
+			}
+			table.appendChild(createHeader.call(this));
+
+			var tbody = document.createElement("tbody");
+			table.appendChild(tbody);
+
+			this.container.appendChild(table);
+
+			if (this.options.data) {
+				this.addItems(this.options.data, false);
+			}
+			if (isAddFooter(this.options)){
+				table.appendChild(createFooter.call(this));
+			}
+		}
+	}
+
+	/// header
 	function createHeader() {
 		var header = document.createElement("thead");
 		var tr = document.createElement("tr");
@@ -84,6 +138,51 @@
 		}
 		return th;
 	}
+	function sortItems(sortName){
+		var currentSortId = this.options.sortDescriptors.findIndex(function(el){
+			return el.asc !== undefined;
+		});
+		var currentSortName = this.options.headers[currentSortId];
+		if (!sortName) {
+			console.warn("sortName should exists");
+			return;
+		}
+		if (sortName != currentSortName){
+			if (currentSortId!=-1){this.options.sortDescriptors[currentSortId].set(undefined);}
+			currentSortId = this.options.headers.findIndex(function(el){return el==sortName;});
+			this.options.sortDescriptors[currentSortId].next();
+		}else{
+			this.options.sortDescriptors[currentSortId].next();
+		}
+		var sortAsc = this.options.sortDescriptors[currentSortId].getAsc();
+		fn = function(a, b){
+			return sortAsc ? 
+				a[sortName]<b[sortName] : 
+				a[sortName]>b[sortName];
+		};
+
+		var tbody = this.container.querySelector("tbody");
+		this.options.callbackSorting(this.options.headers[currentSortId], sortAsc, (function(result){
+			if (!result) { return; }
+			if (tbody) {
+				while (tbody.firstChild) {
+					tbody.removeChild(tbody.firstChild);
+				}
+				this.options.data.sort(fn);
+				this.addItems(this.options.data, false);
+			}
+			updateSortArrows.call(this);
+		}).bind(this));
+	}
+	function updateSortArrows() {
+		var thead = this.container.querySelector("thead");
+		this.options.headers.forEach(function(el, idx){
+			var sortSpan = thead.querySelector("#sort-"+el);
+			sortSpan.innerHTML = " "+this.options.sortDescriptors[idx].getSymbol();
+		}, this);
+	}
+	
+	/// column manipulation 
 	function removeTableColumn(columnName) {
 		var affectedCount = 0;
 		this.options.data.forEach(function(el){
@@ -152,49 +251,8 @@
 			tr.appendChild(newCell);
 		}
 	}
-	function addTableDefaultStyles(table){
-		applyStyles(table, {
-			"border-collapse": "collapse",
-			"border-spacing": "0px"
-		});
-		var style = document.createElement("style");
-		style.innerHTML = "table th, table td { padding: 5px; border: 1px solid black }";
-		table.appendChild(style);
-	}
-	function render() {
-		var table = this.container.querySelector("table");
-		if (!table) {
-			// table header
-			table = document.createElement("table");
-			if (!this.options.tableClass) {
-				addTableDefaultStyles(table);
-			} else {
-				addClass(table, this.options.tableClass);
-			}
-			table.appendChild(createHeader.call(this));
 
-			var tbody = document.createElement("tbody");
-			table.appendChild(tbody);
-
-			this.container.appendChild(table);
-
-			if (this.options.data) {
-				this.addItems(this.options.data, false);
-			}
-			if (isAddFooter(this.options)){
-				table.appendChild(createFooter.call(this));
-			}
-		}
-	}
-	function isAddFooter(option){
-
-		return option.inserting;
-	}
-	function createFooterCell(headerName) {
-		var td = document.createElement("td");
-		td.innerHTML = "<input type='text' value='' id='add-"+headerName+"'></input>";
-		return td;
-	}
+	/// footer
 	function createFooter() {
 		var footer = document.createElement("tfoot");
 		var tr = document.createElement("tr");
@@ -211,6 +269,11 @@
 		tr.appendChild(td);
 		footer.appendChild(tr);
 		return footer;		
+	}
+	function createFooterCell(headerName) {
+		var td = document.createElement("td");
+		td.innerHTML = "<input type='text' value='' id='add-"+headerName+"'></input>";
+		return td;
 	}
 	function footerButtonClick(e) {
 		var tfoot = getParentWithTagName(e.target, "tfoot");
@@ -241,10 +304,8 @@
 			}).bind(this));
 		}
 	}
-	function isAddExtraColumn(option){
 
-		return option.deleting||option.inserting||option.editing||option.columnInserting;
-	}
+	/// body
 	function addItems(items, isAdd, replaceIndex) {
 		isAdd = isAdd === undefined ? true : false;
 		replaceIndex = replaceIndex;
@@ -328,12 +389,6 @@
 		result.innerHTML = inner;
 		return result;
 	}
-	function getParentWithTagName(el, name){
-		do {
-			el = el.parentNode;
-		} while (el.tagName != name.toUpperCase());
-		return el;
-	}
 	function removeItem(index, mouseEvent) {
 		var tbody = this.container.querySelector("tbody");
 		if (!index) {
@@ -355,49 +410,8 @@
 			var deletingItem = this.options.data.splice(index, 1);
 		}).bind(this));
 	}
-	function sortItems(sortName){
-		var currentSortId = this.options.sortDescriptors.findIndex(function(el){
-			return el.asc !== undefined;
-		});
-		var currentSortName = this.options.headers[currentSortId];
-		if (!sortName) {
-			console.warn("sortName should exists");
-			return;
-		}
-		if (sortName != currentSortName){
-			if (currentSortId!=-1){this.options.sortDescriptors[currentSortId].set(undefined);}
-			currentSortId = this.options.headers.findIndex(function(el){return el==sortName;});
-			this.options.sortDescriptors[currentSortId].next();
-		}else{
-			this.options.sortDescriptors[currentSortId].next();
-		}
-		var sortAsc = this.options.sortDescriptors[currentSortId].getAsc();
-		fn = function(a, b){
-			return sortAsc ? 
-				a[sortName]<b[sortName] : 
-				a[sortName]>b[sortName];
-		};
 
-		var tbody = this.container.querySelector("tbody");
-		this.options.callbackSorting(this.options.headers[currentSortId], sortAsc, (function(result){
-			if (!result) { return; }
-			if (tbody) {
-				while (tbody.firstChild) {
-					tbody.removeChild(tbody.firstChild);
-				}
-				this.options.data.sort(fn);
-				this.addItems(this.options.data, false);
-			}
-			updateSortArrows.call(this);
-		}).bind(this));
-	}
-	function updateSortArrows() {
-		var thead = this.container.querySelector("thead");
-		this.options.headers.forEach(function(el, idx){
-			var sortSpan = thead.querySelector("#sort-"+el);
-			sortSpan.innerHTML = " "+this.options.sortDescriptors[idx].getSymbol();
-		}, this);
-	}
+	/// options
 	function optionsGet() {
 
 		return this.options;
