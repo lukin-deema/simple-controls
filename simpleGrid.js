@@ -214,8 +214,9 @@
 			console.warn("header mast be unique");
 			return;
 		}
-		this.options.callbackColumnInserting(newColumnName, (function(result){
+		this.options.callbackColumnInserting(newColumnName, (function(result, updatedItem){
 			if (!result) { return; }
+			newColumnName = updatedItem || newColumnName;
 			this.options.headers.push(newColumnName);
 
 			for (var i = 0; i < this.options.data.length; i++) {
@@ -240,6 +241,7 @@
 			var tfoot = this.container.querySelector("tfoot");
 			var td = createFooterCell.call(this, newColumnName);
 			appendNewColumnCell(tfoot, 0, td);
+			thead.querySelector("#new-column").value = "";
 		}).bind(this));
 	}
 	function appendNewColumnCell(_parent, i, newCell) {
@@ -282,16 +284,18 @@
 			newItem[el] = tfoot.querySelector("#add-"+el).value;
 		}, this.options.headers);
 		if (this.options.editIndex === undefined) { // add
-			this.options.callbackInserting(newItem, (function(result){ 
+			this.options.callbackInserting(newItem, (function(result, updatedItem){ 
 				if(!result){ return; }
+				newItem = updatedItem || newItem;
 				this.addItems(newItem);
 				this.options.headers.forEach(function(el){
 					tfoot.querySelector("#add-"+el).value = "";
 				}, this.options.headers);
 			}).bind(this));
 		} else { // edit item with index
-			this.options.callbackEditing(this.options.oldItem, newItem, this.options.editIndex, (function(result){ 
+			this.options.callbackEditing(this.options.oldItem, newItem, this.options.editIndex, (function(result, updatedItem){ 
 				if(!result){ return; }
+				newItem = updatedItem || newItem;
 				this.options.data[this.options.editIndex] = newItem;
 				// update UI: delete old row, append new row
 				this.addItems(newItem, false, this.options.editIndex);

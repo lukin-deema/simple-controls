@@ -64,7 +64,11 @@ var callbackDeleting = function(item, index, callback){
 var callbackInserting = function(item, callback){
 	alert("item: "+JSON.stringify(item));
 	log();
-	callback(true);
+	var newV = Object.keys(item).reduce(function(obj, x){
+		obj[x] = item[x]+"_ins";
+		return obj;
+	},{})
+	callback(true, newV);
 }
 var callbackSorting = function(columnName, columnAcs, callback){
 	alert("columnName: "+JSON.stringify(columnName) 
@@ -77,12 +81,16 @@ var callbackEditing = function(oldItem, newItem, index, callback){
 		+"newItem: "+JSON.stringify(newItem)
 		+"index: "+JSON.stringify(index));
 	log();
-	callback(true);
+	var newV = Object.keys(newItem).reduce(function(obj, x){
+		obj[x] = newItem[x]+"_edit";
+		return obj;
+	},{})
+	callback(true, newV);
 }
 var callbackColumnInserting = function(columnName, callback){
 	alert("columnName: "+JSON.stringify(columnName));
 	log();
-	callback(true);
+	callback(true, columnName+"_col");
 }
 var callbackColumnDeleting = function(columnName, affectedCount, callback){
 	alert("columnName: "+JSON.stringify(columnName)

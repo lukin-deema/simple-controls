@@ -37,6 +37,11 @@ SimpleGrid v1.0.3.
 			callbackRemoveColumn -> callbackColumnDeleting
 		2. if callback{action} change default of {action} to true ({action}=> deleting, inserting, sorting, editing, columnInserting, columnDeleting)
 		3. when 'headers' not define check all data for object keys and get unique keys
+	v1.0.4
+		1. change callbackInserting -> function(result, updatedItem){ } , can redefine 'newItem' if necessary, when 'updatedItem'!=undefined it replace 'newItem'
+		2. change callbackEditing -> function(result, updatedItem){ } , can redefine 'newItem' if necessary, when 'updatedItem'!=undefined it replace 'newItem'
+		3. change callbackColumnInserting -> function(result, updatedItem){ } , can redefine 'newColumnName' if necessary, when 'updatedItem'!=undefined it replace 'newColumnName'
+
 
 	options:
 		{v1.0.0}  headers: --default=[], array of string [headers[0],...,headers[n]]
@@ -48,12 +53,12 @@ SimpleGrid v1.0.3.
 		{v1.0.1}  callbackDeleting: --default=function(item, index, callback){ callback(true); }
 		{v1.0.1}  dataTemplate: --default="%data%", "%data%" OR {headers[0]: "%data%",...,headers[n]: "%data%"}
 		{v1.0.1}  inserting: --default=false (or true if defined callbackInserting)  on true in table footer will be input boxes for adding new item in table. input boxes id = 'add-{header[i]}'  
-		{v1.0.1}  callbackInserting: --default=function(item, callback){ callback(true); 
+		{v1.0.1}  callbackInserting: --default=function(item, callback){ callback(true[, updatedItem]); 
 		{v1.0.2}  editing: --default=false (or true if defined callbackEditing) on true append button for edit current item. edit item occur in footer 
-		{v1.0.2}  callbackEditing: --default=function(olditem, newItem, index, callback){ callback(true); }
+		{v1.0.2}  callbackEditing: --default=function(olditem, newItem, index, callback){ callback(true[, updatedItem]); }
 		{v1.0.2}  columnInserting: --default=false (or true if defined callbackColumnInserting), append buttor and inputbox for adding new column to table		
 		{v1.0.2}  callbackSorting: --default=function(columnName, columnAcs, callback){callback(true)}
-		{v1.0.2}  callbackColumnInserting: --default=function(columnName, callback){callback(true)}
+		{v1.0.2}  callbackColumnInserting: --default=function(columnName, callback){callback(true[, updatedItem])}
 		{v1.0.2}  callbackColumnDeleting: --default=function(columnName, affectedCount, callback){callback(true)}
 		{v1.0.2}  columnDeleting: --default=false (or true if defined callbackColumnDeleting), append button and inputbox for remove column from table (looks like cross)
 
