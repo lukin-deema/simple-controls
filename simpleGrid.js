@@ -1,31 +1,68 @@
 /// SimpleGrid v1.0.3
 (function SimpleNotification(global) {
 	/// sortDescriptor
-	function SortDescriptor(asc){
+	function SortColumnDescriptor(asc){
+		
 		this.asc = asc;
 	}
-	SortDescriptor.prototype.getSymbol = function(){
+	SortColumnDescriptor.prototype.getSortSymbol = function(){
 		switch (this.asc) {
 			case true: return "&#9660;";
 			case false: return "&#9650;";
 			case undefined: return "&#9679;";
 		}
 	};
-	SortDescriptor.prototype.getAsc = function(){
-
-		return this.asc;
-	};
-	SortDescriptor.prototype.set = function (val) {
-
-		this.asc = val;
-	};
-	SortDescriptor.prototype.next = function(){
+	SortColumnDescriptor.prototype.next = function(){
 		switch (this.asc) {
 			case true: this.asc = false; break;
 			case false: this.asc = undefined; break;
 			case undefined: this.asc = true; break;
 		}
-		return this.getSymbol();
+	};
+	function SortDescriptors(){
+
+		this.descriptors = {};
+	}
+	SortDescriptors.prototype.add = function(header, value){
+		if (this.descriptors.hasOwnProperty(header)) { 
+			console.log("SortDescriptors alrady has descriptor named " + header);
+			return; 
+		}
+		this.descriptors[header] = new SortColumnDescriptor(value);
+	};
+	SortDescriptors.prototype.remove = function(header){
+
+		delete this.descriptors[header];
+	};
+	SortDescriptors.prototype.reset = function(){
+		this.descriptors = Object.keys(this.descriptors).reduce(
+			function(result, val){ 
+				result[val] = new SortColumnDescriptor(undefined); return result; 
+			}, {});
+	};
+	SortDescriptors.prototype.setNext = function(header){
+		if (!this.descriptors.hasOwnProperty(header)) { 
+			console.log("SortDescriptors has not descriptor named " + header);
+			return; 
+		}
+		this.descriptors[header].next();
+	};
+	SortDescriptors.prototype.getSortSymbol = function(header){
+		if (!this.descriptors.hasOwnProperty(header)) { 
+			console.log("SortDescriptors has not descriptor named " + header);
+			return; 
+		}
+		return this.descriptors[header].getSortSymbol();
+	};
+	SortDescriptors.prototype.getActiveDescriptor = function(){
+		var key;
+		Object.keys(this.descriptors).forEach(function(el){
+			if (this.descriptors[el].asc !== undefined) { key = el; }
+		}, this);
+		if (!key) {
+			return { header: undefined, acs: undefined };
+		}
+		return { header: key, acs: this.descriptors[key].asc };
 	};
 
 	/// small helpers
@@ -124,7 +161,7 @@
 		if (this.options.sorting) {
 			var sortSpan = document.createElement("span");
 			sortSpan.setAttribute("id","sort-" + this.options.headers[i]);
-			sortSpan.innerHTML = " "+this.options.sortDescriptors[i].getSymbol();
+			sortSpan.innerHTML = " "+this.options.sortDescriptors.getSortSymbol(this.options.headers[i]);
 			sortSpan.addEventListener("click", sortItems.bind(this, 
 				this.options.headers[i]), false);
 			th.appendChild(sortSpan);
@@ -139,22 +176,20 @@
 		return th;
 	}
 	function sortItems(sortName){
-		var currentSortId = this.options.sortDescriptors.findIndex(function(el){
-			return el.asc !== undefined;
-		});
-		var currentSortName = this.options.headers[currentSortId];
 		if (!sortName) {
 			console.warn("sortName should exists");
 			return;
 		}
+		var currentSortName = this.options.sortDescriptors.getActiveDescriptor().header;
 		if (sortName != currentSortName){
-			if (currentSortId!=-1){this.options.sortDescriptors[currentSortId].set(undefined);}
-			currentSortId = this.options.headers.findIndex(function(el){return el==sortName;});
-			this.options.sortDescriptors[currentSortId].next();
+			this.options.sortDescriptors.reset();
+			this.options.sortDescriptors.setNext(sortName);
 		}else{
-			this.options.sortDescriptors[currentSortId].next();
+			this.options.sortDescriptors.setNext(sortName);
 		}
-		var sortAsc = this.options.sortDescriptors[currentSortId].getAsc();
+		var descr = this.options.sortDescriptors.getActiveDescriptor();
+		var sortAsc = descr.acs;
+		sortName = descr.header;
 		fn = function(a, b){
 			return sortAsc ? 
 				a[sortName]<b[sortName] : 
@@ -162,7 +197,7 @@
 		};
 
 		var tbody = this.container.querySelector("tbody");
-		this.options.callbackSorting(this.options.headers[currentSortId], sortAsc, (function(result){
+		this.options.callbackSorting(sortName, sortAsc, (function(result){
 			if (!result) { return; }
 			if (tbody) {
 				while (tbody.firstChild) {
@@ -178,7 +213,7 @@
 		var thead = this.container.querySelector("thead");
 		this.options.headers.forEach(function(el, idx){
 			var sortSpan = thead.querySelector("#sort-"+el);
-			sortSpan.innerHTML = " "+this.options.sortDescriptors[idx].getSymbol();
+			sortSpan.innerHTML = " "+this.options.sortDescriptors.getSortSymbol(el);
 		}, this);
 	}
 	
@@ -196,6 +231,7 @@
 
 			var trHead = this.container.querySelector("thead tr");
 			trHead.removeChild(trHead.childNodes[columnId]);  
+			this.options.sortDescriptors.remove(this.options.headers[columnId]);
 			this.options.headers.splice(columnId, 1);
 
 			trBody = this.container.querySelector("tbody");
@@ -224,7 +260,7 @@
 			}
 
 			var thead = this.container.querySelector("thead");
-			this.options.sortDescriptors.push(new SortDescriptor(undefined));
+			this.options.sortDescriptors .add(newColumnName, undefined);
 			if (this.options.dataTemplate instanceof Object) {
 				this.options.dataTemplate[newColumnName] = "%data%";
 			}
@@ -350,12 +386,7 @@
 		if (isAdd) {
 			this.options.data = this.options.data.concat(items);
 			if(this.options.sorting){
-				var currentSortId = this.options.sortDescriptors.findIndex(function(el){
-					return el.asc !== undefined;
-				});
-				if (currentSortId > -1) {
-					this.options.sortDescriptors[currentSortId].set(undefined);
-				}
+				var currentSortId = this.options.sortDescriptors.reset();
 			}
 		}
 		if (this.options.sorting) {
@@ -439,11 +470,11 @@
 			}, this);
 		}
 
-		this.options.sortDescriptors = [];
+		this.options.sortDescriptors = new SortDescriptors();
 		this.options.headers.forEach(function(el){
-			this.options.sortDescriptors.push(new SortDescriptor(undefined));
+			this.options.sortDescriptors.add(el, undefined);
 		}, this);
-
+		
 		this.options.deleting = opt.deleting || false;
 		if (opt.callbackDeleting) {
 			this.options.callbackDeleting = opt.callbackDeleting;
