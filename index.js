@@ -68,7 +68,7 @@ var callbackInserting = function(item, callback){
 		obj[x] = item[x]+"_ins";
 		return obj;
 	},{})
-	callback(true, newV);
+	callback(true/*, newV*/);
 }
 var callbackSorting = function(columnName, columnAcs, callback){
 	alert("columnName: "+JSON.stringify(columnName) 
@@ -85,12 +85,12 @@ var callbackEditing = function(oldItem, newItem, index, callback){
 		obj[x] = newItem[x]+"_edit";
 		return obj;
 	},{})
-	callback(true, newV);
+	callback(true/*, newV*/);
 }
 var callbackColumnInserting = function(columnName, callback){
 	alert("columnName: "+JSON.stringify(columnName));
 	log();
-	callback(true, columnName+"_col");
+	callback(true/*, columnName+"_col"*/);
 }
 var callbackColumnDeleting = function(columnName, affectedCount, callback){
 	alert("columnName: "+JSON.stringify(columnName)
@@ -99,9 +99,10 @@ var callbackColumnDeleting = function(columnName, affectedCount, callback){
 	callback(true);
 }
 var tableOptions = {
-	////headers: ["name", "age"],
+	hiddenHeaders:["id"],
+	headers: ["name", "age"],
 	containerIdName: "snTable",
-	data: [{"name":"Pit", "age":22},{"name":"Sally", "age":21}],
+	data: [{"id": 1, "name":"Pit", "age":22},{"id": 2, "name":"Sally", "age":21}],
 	////inserting: true,
 	callbackInserting: callbackInserting,
 	////editing: true,

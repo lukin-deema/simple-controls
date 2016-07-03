@@ -1,4 +1,4 @@
-SimpleGrid v1.0.3.
+SimpleGrid v1.0.4.
 
 	v1.0.0.	
 		1. create table in container with id 'containerIdName'.
@@ -38,12 +38,13 @@ SimpleGrid v1.0.3.
 		2. if callback{action} change default of {action} to true ({action}=> deleting, inserting, sorting, editing, columnInserting, columnDeleting)
 		3. when 'headers' not define check all data for object keys and get unique keys
 	v1.0.4
-		1. change callbackInserting -> function(result, updatedItem){ } , can redefine 'newItem' if necessary, when 'updatedItem'!=undefined it replace 'newItem'
-		2. change callbackEditing -> function(result, updatedItem){ } , can redefine 'newItem' if necessary, when 'updatedItem'!=undefined it replace 'newItem'
-		3. change callbackColumnInserting -> function(result, updatedItem){ } , can redefine 'newColumnName' if necessary, when 'updatedItem'!=undefined it replace 'newColumnName'
-		4. change inner option 'sortDescriptors' from [SortDescriptor,..] to  {header1:SortDescriptor,...}
-		5. change callbackSorting -> function(result, updtedSortName, updatedSortAsc){ } , can redefine 'updtedSortName' and 'updatedSortAsc' if necessary, when values!=undefined it replace old values
-		
+		1. change callbackInserting -> function(result[, updatedItem]){ } , can redefine 'newItem' if necessary, when 'updatedItem'!=undefined it replace 'newItem'
+		2. change callbackEditing -> function(result[, updatedItem]){ } , can redefine 'newItem' if necessary, when 'updatedItem'!=undefined it replace 'newItem'
+		3. change callbackColumnInserting -> function(result[, updatedItem]){ } , can redefine 'newColumnName' if necessary, when 'updatedItem'!=undefined it replace 'newColumnName'
+		4. change inner option 'sortDescriptors' from array [SortDescriptor,..] to object {header1:SortDescriptor,...}
+		5. change callbackSorting -> function(result[, updtedSortName, updatedSortAsc]){ } , can redefine 'updtedSortName' and 'updatedSortAsc' if necessary, when values!=undefined it replace old values
+		6. add 'hiddenHeaders', header witch doesnot show 
+
 	options:
 		{v1.0.0}  headers: --default=[], array of string [headers[0],...,headers[n]]
 		{v1.0.0}  data: --default=[], can be added using addItems method [{headers[i]: value,..., headers[n]: value},{...}]
@@ -57,16 +58,18 @@ SimpleGrid v1.0.3.
 		{v1.0.1}  callbackInserting: --default=function(item, callback){ callback(true[, updatedItem]); 
 		{v1.0.2}  editing: --default=false (or true if defined callbackEditing) on true append button for edit current item. edit item occur in footer 
 		{v1.0.2}  callbackEditing: --default=function(olditem, newItem, index, callback){ callback(true[, updatedItem]); }
-		{v1.0.2}  columnInserting: --default=false (or true if defined callbackColumnInserting), append buttor and inputbox for adding new column to table		
+		{v1.0.2}  columnInserting: --default=false (or true if defined callbackColumnInserting), append buttor and inputbox for adding new column to table
 		{v1.0.2}  callbackSorting: --default=function(columnName, columnAcs, callback){callback(true)}
 		{v1.0.2}  callbackColumnInserting: --default=function(columnName, callback){callback(true[, updatedItem])}
 		{v1.0.2}  callbackColumnDeleting: --default=function(columnName, affectedCount, callback){callback(true)}
 		{v1.0.2}  columnDeleting: --default=false (or true if defined callbackColumnDeleting), append button and inputbox for remove column from table (looks like cross)
-
+		{v1.0.4}  hiddenHeaders: --default=undefided, ["string1",...] this headers doesnt show on UI
 
 	inner options:
-		{v1.0.2}	editIndex&oldItem show index and old value for edit item. set in  prepareToEdit method, reset in footerButtonClick/callbackEditing
-		{v1.0.2}	sortDescriptors array of SortDescriptor show whitch column sorting
+		{v1.0.2}  editIndex&oldItem show index and old value for edit item. set in  prepareToEdit method, reset in footerButtonClick/callbackEditing
+		{v1.0.2}  sortDescriptors object {header1:SortDescriptor,...} witch show what column sotring
+		{v1.0.4}  header change to object {show:true|false, header: old 'header'}
+		{v1.0.4}  hidHeaders save values of hiddenHeaders when edit item
 
 	methods:
 		{v1.0.0}  render 

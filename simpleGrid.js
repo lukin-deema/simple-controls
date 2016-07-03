@@ -130,7 +130,9 @@
 		var header = document.createElement("thead");
 		var tr = document.createElement("tr");
 		for (var i = 0; i < this.options.headers.length; i++) {
-			tr.appendChild(createHeaderCell.call(this, i));
+			if (this.options.headers[i].show) {
+				tr.appendChild(createHeaderCell.call(this, i));
+			}
 		}
 		if (isAddExtraColumn(this.options)) {
 			if (this.options.columnInserting) {
@@ -157,20 +159,20 @@
 	}
 	function createHeaderCell(i) {
 		var th = document.createElement("th");
-		th.innerHTML = this.options.headers[i];
+		th.innerHTML = this.options.headers[i].header;
 		if (this.options.sorting) {
 			var sortSpan = document.createElement("span");
-			sortSpan.setAttribute("id","sort-" + this.options.headers[i]);
-			sortSpan.innerHTML = " "+this.options.sortDescriptors.getSortSymbol(this.options.headers[i]);
+			sortSpan.setAttribute("id","sort-" + this.options.headers[i].header);
+			sortSpan.innerHTML = " "+this.options.sortDescriptors.getSortSymbol(this.options.headers[i].header);
 			sortSpan.addEventListener("click", sortItems.bind(this, 
-				this.options.headers[i]), false);
+				this.options.headers[i].header), false);
 			th.appendChild(sortSpan);
 		}
 		if (this.options.columnDeleting) {
 			var removeSpan = document.createElement("span");
 			removeSpan.innerHTML = " &#215;";
 			removeSpan.addEventListener("click", removeTableColumn.bind(this, 
-				this.options.headers[i]), false);
+				this.options.headers[i].header), false);
 			th.appendChild(removeSpan);
 		}
 		return th;
@@ -213,8 +215,10 @@
 	function updateSortArrows() {
 		var thead = this.container.querySelector("thead");
 		this.options.headers.forEach(function(el, idx){
-			var sortSpan = thead.querySelector("#sort-"+el);
-			sortSpan.innerHTML = " "+this.options.sortDescriptors.getSortSymbol(el);
+			if (el.show) {
+				var sortSpan = thead.querySelector("#sort-"+el.header);
+				sortSpan.innerHTML = " "+this.options.sortDescriptors.getSortSymbol(el.header);
+			}
 		}, this);
 	}
 	
@@ -228,7 +232,9 @@
 		});
 		this.options.callbackColumnDeleting(columnName, affectedCount, (function(result){
 			if (!result) { return; }
-			columnId = this.options.headers.indexOf(columnName);
+			var columnId = this.options.headers.findIndex(function(el){
+				if (el.header == columnName && el.show) {return true;}
+			})
 
 			var trHead = this.container.querySelector("thead tr");
 			trHead.removeChild(trHead.childNodes[columnId]);  
@@ -247,14 +253,14 @@
 	}
 	function appendNewColumnClick(e) {
 		var newColumnName = e.target.previousSibling.value;
-		if(this.options.headers.some(function(el){ return el == newColumnName; })){
+		if(this.options.headers.some(function(el){ return el.header == newColumnName; })){
 			console.warn("header mast be unique");
 			return;
 		}
 		this.options.callbackColumnInserting(newColumnName, (function(result, updatedItem){
 			if (!result) { return; }
 			newColumnName = updatedItem || newColumnName;
-			this.options.headers.push(newColumnName);
+			this.options.headers.push({ show: true, header: newColumnName});
 
 			for (var i = 0; i < this.options.data.length; i++) {
 				this.options.data[i][newColumnName] = "";
@@ -296,7 +302,9 @@
 		var footer = document.createElement("tfoot");
 		var tr = document.createElement("tr");
 		for (var i = 0; i < this.options.headers.length; i++) {
-			tr.appendChild(createFooterCell(this.options.headers[i]));
+			if (this.options.headers[i].show) {
+				tr.appendChild(createFooterCell(this.options.headers[i].header));
+			}
 		}
 		var buttonAdd = document.createElement("input");
 		buttonAdd.setAttribute("id","footer-button");
@@ -318,7 +326,9 @@
 		var tfoot = getParentWithTagName(e.target, "tfoot");
 		var newItem = {};
 		this.options.headers.forEach(function(el){
-			newItem[el] = tfoot.querySelector("#add-"+el).value;
+			if (el.show) {
+				newItem[el.header] = tfoot.querySelector("#add-"+el.header).value;
+			}
 		}, this.options.headers);
 		if (this.options.editIndex === undefined) { // add
 			this.options.callbackInserting(newItem, (function(result, updatedItem){ 
@@ -326,10 +336,19 @@
 				newItem = updatedItem || newItem;
 				this.addItems(newItem);
 				this.options.headers.forEach(function(el){
-					tfoot.querySelector("#add-"+el).value = "";
+					if (el.show) {
+						tfoot.querySelector("#add-"+el.header).value = "";
+					}
 				}, this.options.headers);
 			}).bind(this));
 		} else { // edit item with index
+			if(this.options.hidHeaders){
+				Object.keys(this.options.hidHeaders).forEach(function(el){
+					this.options.oldItem[el] = this.options.hidHeaders[el];
+					newItem[el] = this.options.hidHeaders[el];
+				}, this)
+				this.options.hidHeaders = undefined;
+			}
 			this.options.callbackEditing(this.options.oldItem, newItem, this.options.editIndex, (function(result, updatedItem){ 
 				if(!result){ return; }
 				newItem = updatedItem || newItem;
@@ -337,7 +356,9 @@
 				// update UI: delete old row, append new row
 				this.addItems(newItem, false, this.options.editIndex);
 				this.options.headers.forEach(function(el){
-					tfoot.querySelector("#add-"+el).value = "";
+					if (el.show) {
+						tfoot.querySelector("#add-"+el.header).value = "";
+					} 
 				}, this.options.headers);
 				this.options.oldItem = undefined;
 				this.options.editIndex = undefined;
@@ -356,7 +377,9 @@
 		for (var i = 0; i < items.length; i++) {
 			var tr = document.createElement("tr");
 			for (var j = 0; j < this.options.headers.length; j++) {
-				tr.appendChild(replaceTemplate.call(this, items[i], this.options.headers[j]));
+				if (this.options.headers[j].show) {
+					tr.appendChild(replaceTemplate.call(this, items[i], this.options.headers[j].header));
+				}
 			}
 			if (isAddExtraColumn(this.options)) {
 				var td = document.createElement("td");
@@ -410,7 +433,12 @@
 		/// place oldvalue to footer input
 		tfoot = this.container.querySelector("tfoot");
 		this.options.headers.forEach(function(el){
-			tfoot.querySelector("#add-"+el).value = this.options.oldItem[el];
+			if (el.show) {
+				tfoot.querySelector("#add-"+el.header).value = this.options.oldItem[el.header];
+			} else {
+				if (!this.options.hidHeaders) {this.options.hidHeaders={};}
+				this.options.hidHeaders[el.header] = this.options.oldItem[el.header]
+			}
 		}, this);
 		tfoot.querySelector("#footer-button").value = "Edit";
 	}
@@ -459,21 +487,35 @@
 		this.options.tableClass = opt.tableClass;
 		this.options.dataTemplate = opt.dataTemplate || "%data%";
 
-		this.options.headers = opt.headers || [];
-		this.options.data = opt.data || [];
-		if (this.options.headers.length === 0){
-			this.options.data.forEach(function(el){
-				Object.keys(el).forEach(function(x){
-					if (this.options.headers.indexOf(x) == -1) {
-						this.options.headers.push(x);
-					}
-				}, this);
-			}, this);
+		this.options.headers = []
+		if (opt.headers) {
+			opt.headers.forEach(function(el){
+				if (!this.options.headers.some(function(x){return x.header==el;})){
+					this.options.headers.push({show: true, header: el});
+				}
+			}, this)
 		}
+		if (opt.hiddenHeaders) {
+			opt.hiddenHeaders.forEach(function(el){
+				if (!this.options.headers.some(function(x){return x.header==el;})){
+					this.options.headers.push({show: false, header: el});
+				}
+			}, this)
+		}
+		this.options.data = opt.data || [];
+		this.options.data.forEach(function(el){
+			Object.keys(el).forEach(function(x){
+				if (!this.options.headers.some(function(y){return y.header==x;})) {
+					this.options.headers.push({show: true, header: x});
+				}
+			}, this);
+		}, this);
 
 		this.options.sortDescriptors = new SortDescriptors();
 		this.options.headers.forEach(function(el){
-			this.options.sortDescriptors.add(el, undefined);
+			if (el.show) {
+				this.options.sortDescriptors.add(el.header, undefined);
+			}
 		}, this);
 		
 		this.options.deleting = opt.deleting || false;
