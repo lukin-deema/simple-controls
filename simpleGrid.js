@@ -1,4 +1,4 @@
-/// SimpleGrid v1.0.3
+/// SimpleGrid v1.0.4
 (function SimpleNotification(global) {
 	/// sortDescriptor
 	function SortColumnDescriptor(asc){
@@ -187,18 +187,19 @@
 		}else{
 			this.options.sortDescriptors.setNext(sortName);
 		}
-		var descr = this.options.sortDescriptors.getActiveDescriptor();
-		var sortAsc = descr.acs;
-		sortName = descr.header;
-		fn = function(a, b){
-			return sortAsc ? 
-				a[sortName]<b[sortName] : 
-				a[sortName]>b[sortName];
-		};
+		var descriptor = this.options.sortDescriptors.getActiveDescriptor();
+		var sortAsc = descriptor.acs;
+		sortName = descriptor.header;
 
-		var tbody = this.container.querySelector("tbody");
-		this.options.callbackSorting(sortName, sortAsc, (function(result){
+		this.options.callbackSorting(sortName, sortAsc, (function(result, updtedSortName, updatedSortAsc){
 			if (!result) { return; }
+			sortAsc = updatedSortAsc || sortAsc;
+			sortName = updtedSortName || sortName;
+			fn = function(a, b){
+				return sortAsc ? a[sortName]<b[sortName] : a[sortName]>b[sortName];
+			};
+
+			var tbody = this.container.querySelector("tbody");
 			if (tbody) {
 				while (tbody.firstChild) {
 					tbody.removeChild(tbody.firstChild);

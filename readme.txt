@@ -42,7 +42,8 @@ SimpleGrid v1.0.3.
 		2. change callbackEditing -> function(result, updatedItem){ } , can redefine 'newItem' if necessary, when 'updatedItem'!=undefined it replace 'newItem'
 		3. change callbackColumnInserting -> function(result, updatedItem){ } , can redefine 'newColumnName' if necessary, when 'updatedItem'!=undefined it replace 'newColumnName'
 		4. change inner option 'sortDescriptors' from [SortDescriptor,..] to  {header1:SortDescriptor,...}
-
+		5. change callbackSorting -> function(result, updtedSortName, updatedSortAsc){ } , can redefine 'updtedSortName' and 'updatedSortAsc' if necessary, when values!=undefined it replace old values
+		
 	options:
 		{v1.0.0}  headers: --default=[], array of string [headers[0],...,headers[n]]
 		{v1.0.0}  data: --default=[], can be added using addItems method [{headers[i]: value,..., headers[n]: value},{...}]
