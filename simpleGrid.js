@@ -434,7 +434,7 @@
 		tfoot = this.container.querySelector("tfoot");
 		this.options.headers.forEach(function(el){
 			if (el.show) {
-				tfoot.querySelector("#add-"+el.header).value = this.options.oldItem[el.header];
+				tfoot.querySelector("#add-"+el.header).value = this.options.oldItem[el.header] || "";
 			} else {
 				if (!this.options.hidHeaders) {this.options.hidHeaders={};}
 				this.options.hidHeaders[el.header] = this.options.oldItem[el.header]
@@ -445,9 +445,9 @@
 	function replaceTemplate(item, headerName) {
 		var inner;
 		if (this.options.dataTemplate instanceof Object) {
-			inner = this.options.dataTemplate[headerName].replace(/%data%/g, item[headerName]);
+			inner = this.options.dataTemplate[headerName].replace(/%data%/g, item[headerName] || "");
 		} else {
-			inner = this.options.dataTemplate.replace(/%data%/g, item[headerName]);
+			inner = this.options.dataTemplate.replace(/%data%/g, item[headerName] || "");
 		}
 		var result = document.createElement("td");
 		result.innerHTML = inner;
