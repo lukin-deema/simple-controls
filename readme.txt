@@ -50,8 +50,6 @@ SimpleGrid v1.0.4.
 	v1.0.5
 		1. change inner headers to structure {show, header, tamplate, value}, where "tamplate", "value" new fields that shows how header will be showing on table. by default template "%data%" and value same as 'header' but start with capital  letter.
 		2. array element for options.headers, options.hiddenHeaders can be string ( with default "tamplate", "value" in inner headers) or {header:"header", template:"%data%", value:"Header"} where 'header' required. Template should contains "%data%" 
-		-3. add template for add row cell, 
-		-4. add template for additional column(head, foot, body)
 
 	options:
 		| headers | v1.0.5 | --default=[] | Showing heders can be add new header using columnInserting = true [header[0],...], header can be string in this case {header: header, template: "%data%", value: "{Header}"} or specify all {header: ", template: "", value: ""} but tamplate should contains "%data%" it will be replacing with 'value'

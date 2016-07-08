@@ -190,8 +190,8 @@
 		if (this.options.columnDeleting) {
 			var removeSpan = document.createElement("span");
 			removeSpan.innerHTML = " &#215;";
-			removeSpan.addEventListener("click", removeTableColumn.bind(this, 
-				this.options.headers[i].header), false);
+			removeSpan.setAttribute("id","remove-" + this.options.headers[i].header);
+			removeSpan.addEventListener("click", removeTableColumn.bind(this, i), false);
 			th.appendChild(removeSpan);
 		}
 		return th;
@@ -242,8 +242,9 @@
 	}
 	
 	/// column manipulation 
-	function removeTableColumn(columnName) {
+	function removeTableColumn(columnHeaderNumber) {
 		var affectedCount = 0;
+		var columnName = this.options.headers[columnHeaderNumber].header;
 		this.options.data.forEach(function(el){
 			if (el[columnName]) {
 				affectedCount++;
@@ -251,23 +252,23 @@
 		});
 		this.options.callbackColumnDeleting(columnName, affectedCount, (function(result){
 			if (!result) { return; }
-			var columnId = this.options.headers.findIndex(function(el){
-				if (el.header == columnName && el.show) {return true;}
-			})
+			
+			var th = getParentWithTagName(this.container.querySelector("#remove-" + this.options.headers[columnHeaderNumber].header), 'th');
+			var columnNumber = Array.prototype.indexOf.call(th.parentNode.children, th);
 
 			var trHead = this.container.querySelector("thead tr");
-			trHead.removeChild(trHead.childNodes[columnId]);  
-			this.options.sortDescriptors.remove(this.options.headers[columnId]);
-			this.options.headers.splice(columnId, 1);
+			trHead.removeChild(trHead.childNodes[columnNumber]);  
+			this.options.sortDescriptors.remove(this.options.headers[columnNumber]);
+			this.options.headers.splice(columnNumber, 1);
 
 			trBody = this.container.querySelector("tbody");
 			for (var i = 0; i < trBody.children.length; i++) {
-				trBody.children[i].removeChild(trBody.children[i].childNodes[columnId]); 
+				trBody.children[i].removeChild(trBody.children[i].childNodes[columnNumber]); 
 				delete this.options.data[i][columnName];
 			}
 
 			trFoot = this.container.querySelector("tfoot tr");
-			trFoot.removeChild(trFoot.childNodes[columnId]);    
+			trFoot.removeChild(trFoot.childNodes[columnNumber]);    
 		}).bind(this));
 	}
 	function appendNewColumnClick(e) {
