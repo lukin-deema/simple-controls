@@ -48,10 +48,13 @@ SimpleGrid v1.0.4.
 		6. add 'hiddenHeaders', column witch doesnot show, it exists in 'data' but doesnt show on UI
 
 	v1.0.5
-		
+		1. change inner headers to structure {show, header, tamplate, value}, where "tamplate", "value" new fields that shows how header will be showing on table. by default template "%data%" and value same as 'header' but start with capital  letter.
+		2. array element for options.headers, options.hiddenHeaders can be string ( with default "tamplate", "value" in inner headers) or {header:"header", template:"%data%", value:"Header"} where 'header' required. Template should contains "%data%" 
+		-3. add template for add row cell, 
+		-4. add template for additional column(head, foot, body)
 
 	options:
-		| headers | v1.0.0 | --default=[] | Showing heders can be add new header using columnInserting = true [header[0],...,header[n]]
+		| headers | v1.0.5 | --default=[] | Showing heders can be add new header using columnInserting = true [header[0],...], header can be string in this case {header: header, template: "%data%", value: "{Header}"} or specify all {header: ", template: "", value: ""} but tamplate should contains "%data%" it will be replacing with 'value'
 		| data		| v1.0.0 | --default=[] | Showing informations, can be added using method addItems(items) [{header[i]: value,..., header[n]: value},{...}]{v1.0.0}  containerIdName | v1.0.0 | --default='snTable' | It is the container id where grid will render <div id='snTable'></div>
 		| tableClass | v1.0.0 | --default=undefined | On some value remove default style on table and set this value as class attrinbute
 		| deleting | v1.0.0 | --default=false | On true append button for delete item in additional column
@@ -68,13 +71,14 @@ SimpleGrid v1.0.4.
 		| callbackColumnInserting | v1.0.2 | --default=function(columnName, callback){callback(true[, updatedItem])} | When callbackColumnInserting obviously define 'columnInserting' parameter will redefined as true	
 		| columnDeleting | v1.0.2 | --default=false | On true append button for deleting column in table header
 		| callbackColumnDeleting | v1.0.2 | --default=function(columnName, affectedCount, callback){ callback(true)} | When callbackColumnDeleting obviously define 'columnDeleting' parameter will redefined as true
-		| hiddenHeaders | v1.0.4 | --default=undefided | This headers doesnt show on UI [header[n+1],...] if data should contains some addition information
+		| hiddenHeaders | v1.0.5 | --default=undefided | This headers doesnt show on UI [header[n+1],...] if data should contains some addition information. If hiddenHeaders does not define obviously, all columns will be visible. For more information see "options:headers" 
 
 	inner options:
 		{v1.0.2}  editIndex&oldItem show index and old value for edit item. set in  prepareToEdit method, reset in footerButtonClick/callbackEditing
 		{v1.0.2}  sortDescriptors object {header1:SortDescriptor,...} witch show what column sotring
 		{v1.0.4}  header change to object {show:true|false, header: old 'header'}
 		{v1.0.4}  hidHeaders save values of hiddenHeaders when edit item
+		{v1.0.5}  header {show: "", header:"", tamplate: "", value:""}
 
 	methods:
 		{v1.0.0}  render 

@@ -100,7 +100,7 @@ var callbackColumnDeleting = function(columnName, affectedCount, callback){
 }
 var tableOptions = {
 	hiddenHeaders:["id"],
-	//// headers: ["name", "age"],
+	headers: [{header:"name", template: "<span style='color:red'>%data%</span>", value:"ИМЯ"}, "age"],
 	containerIdName: "snTable",
 	data: [{"id": 1, "name":"Pit", "age":22},{"id": 2, "name":"Sally", "age":21}],
 	// data: [

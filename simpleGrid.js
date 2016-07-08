@@ -98,6 +98,25 @@
 		style.innerHTML = "table th, table td { padding: 5px; border: 1px solid black }";
 		table.appendChild(style);
 	}
+	function addOptionHeaders(opt, _show){
+		opt.forEach(function(el){
+			if (el.hasOwnProperty("header")) {  // obj
+				if (!this.options.headers.some(function(x){return x.header==el.header;})) {
+					var pushObj = {show: _show, header: el.header};
+					if (el.hasOwnProperty("template")) { pushObj.template = el.template;
+					} else { pushObj.template = "%data%"; }
+					if (el.hasOwnProperty("value")) { pushObj.value = el.value;
+					} else { pushObj.value = el.value.slice(0,1).toUpperCase()+el.value.slice(1); }
+					this.options.headers.push(pushObj);
+				}
+			} else {  // string
+				if (!this.options.headers.some(function(x){return x.header==el.header;})){
+					var val = el.slice(0,1).toUpperCase()+el.slice(1);
+					this.options.headers.push({show: _show, header: el, template:"%data%",value: val});
+				}
+			}
+		}, this)
+	}
 
 	function render() {
 		var table = this.container.querySelector("table");
@@ -159,7 +178,7 @@
 	}
 	function createHeaderCell(i) {
 		var th = document.createElement("th");
-		th.innerHTML = this.options.headers[i].header;
+		th.innerHTML = this.options.headers[i].template.replace(/%data%/g, this.options.headers[i].value || "");
 		if (this.options.sorting) {
 			var sortSpan = document.createElement("span");
 			sortSpan.setAttribute("id","sort-" + this.options.headers[i].header);
@@ -260,7 +279,7 @@
 		this.options.callbackColumnInserting(newColumnName, (function(result, updatedItem){
 			if (!result) { return; }
 			newColumnName = updatedItem || newColumnName;
-			this.options.headers.push({ show: true, header: newColumnName});
+			this.options.headers.push({ show: true, header: newColumnName, template:"%data%", value: newColumnName.slice(0,1).toUpperCase()+newColumnName.slice(1)});
 
 			for (var i = 0; i < this.options.data.length; i++) {
 				this.options.data[i][newColumnName] = "";
@@ -278,7 +297,8 @@
 			for (i = 0; i < this.options.data.length; i++) {
 				var item = {};
 				item[newColumnName]="";
-				appendNewColumnCell(tbody, i, replaceTemplate.call(this, item, newColumnName));
+				var val = newColumnName.slice(0,1).toUpperCase()+newColumnName.slice(1);
+				appendNewColumnCell(tbody, i, replaceTemplate.call(this, item, {show: true, header: newColumnName, template: "%data%", value: val}));
 			}
 			
 			var tfoot = this.container.querySelector("tfoot");
@@ -378,7 +398,7 @@
 			var tr = document.createElement("tr");
 			for (var j = 0; j < this.options.headers.length; j++) {
 				if (this.options.headers[j].show) {
-					tr.appendChild(replaceTemplate.call(this, items[i], this.options.headers[j].header));
+					tr.appendChild(replaceTemplate.call(this, items[i], this.options.headers[j]));
 				}
 			}
 			if (isAddExtraColumn(this.options)) {
@@ -442,12 +462,12 @@
 		}, this);
 		tfoot.querySelector("#footer-button").value = "Edit";
 	}
-	function replaceTemplate(item, headerName) {
+	function replaceTemplate(item, header) {
 		var inner;
 		if (this.options.dataTemplate instanceof Object) {
-			inner = this.options.dataTemplate[headerName].replace(/%data%/g, item[headerName] || "");
+			inner = this.options.dataTemplate[header.header].replace(/%data%/g, item[header.header] || "");
 		} else {
-			inner = this.options.dataTemplate.replace(/%data%/g, item[headerName] || "");
+			inner = this.options.dataTemplate.replace(/%data%/g, item[header.header] || "");
 		}
 		var result = document.createElement("td");
 		result.innerHTML = inner;
@@ -488,25 +508,19 @@
 		this.options.dataTemplate = opt.dataTemplate || "%data%";
 
 		this.options.headers = []
-		if (opt.headers) {
-			opt.headers.forEach(function(el){
-				if (!this.options.headers.some(function(x){return x.header==el;})){
-					this.options.headers.push({show: true, header: el});
-				}
-			}, this)
-		}
 		if (opt.hiddenHeaders) {
-			opt.hiddenHeaders.forEach(function(el){
-				if (!this.options.headers.some(function(x){return x.header==el;})){
-					this.options.headers.push({show: false, header: el});
-				}
-			}, this)
+			addOptionHeaders.call(this, opt.hiddenHeaders, false);
+		}		
+		if (opt.headers) {
+			addOptionHeaders.call(this, opt.headers, true);
 		}
+
 		this.options.data = opt.data || [];
 		this.options.data.forEach(function(el){
 			Object.keys(el).forEach(function(x){
 				if (!this.options.headers.some(function(y){return y.header==x;})) {
-					this.options.headers.push({show: true, header: x});
+					var val = x.slice(0,1).toUpperCase()+x.slice(1);
+					this.options.headers.push({show: true, header: x, template:"%data%",value: val});
 				}
 			}, this);
 		}, this);
