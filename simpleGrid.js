@@ -1,4 +1,4 @@
-/// SimpleGrid v1.0.4
+/// SimpleGrid v1.1.0
 (function SimpleNotification(global) {
 	/// sortDescriptor
 	function SortColumnDescriptor(asc){

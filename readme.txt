@@ -53,7 +53,8 @@ SimpleGrid v1.0.4.
 
 	options:
 		| headers | v1.0.5 | --default=[] | Showing heders can be add new header using columnInserting = true [header[0],...], header can be string in this case {header: header, template: "%data%", value: "{Header}"} or specify all {header: ", template: "", value: ""} but tamplate should contains "%data%" it will be replacing with 'value'
-		| data		| v1.0.0 | --default=[] | Showing informations, can be added using method addItems(items) [{header[i]: value,..., header[n]: value},{...}]{v1.0.0}  containerIdName | v1.0.0 | --default='snTable' | It is the container id where grid will render <div id='snTable'></div>
+		| data		| v1.0.0 | --default=[] | Showing informations, can be added using method addItems(items) [{header[i]: value,..., header[n]: value},{...}]
+		| containerIdName | v1.0.0 | --default='snTable' | It is the container id where grid will render <div id='snTable'></div>
 		| tableClass | v1.0.0 | --default=undefined | On some value remove default style on table and set this value as class attrinbute
 		| deleting | v1.0.0 | --default=false | On true append button for delete item in additional column
 		| sorting | v1.0.0 | --default=false | On true append sorting button in each header of the table
