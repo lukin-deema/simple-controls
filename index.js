@@ -100,9 +100,23 @@ var callbackColumnDeleting = function(columnName, affectedCount, callback){
 }
 var tableOptions = {
 	hiddenHeaders:["id"],
-	headers: ["name", "age"],
+	//// headers: ["name", "age"],
 	containerIdName: "snTable",
 	data: [{"id": 1, "name":"Pit", "age":22},{"id": 2, "name":"Sally", "age":21}],
+	// data: [
+	// 	{"2015":"December","Chrome":"68.0 %","IE":"6.3 %","Firefox":"19.1 %","Safari":"3.7 %","Opera":"1.5 %" },
+	// 	{"2015":"November","Chrome":"67.4 %","IE":"6.8 %","Firefox":"19.2 %","Safari":"3.9 %","Opera":"1.5 %"},
+	// 	{"2015":"October","Chrome":"66.5 %","IE":"6.9 %","Firefox":"20.0 %","Safari":"3.8 %","Opera":"1.4 %"},
+	// 	{"2015":"September","Chrome":"65.9 %","IE":"7.2 %","Firefox":"20.6 %","Safari":"3.6 %","Opera":"1.4 %"},
+	// 	{"2015":"August","Chrome":"64.0 %","IE":"6.6 %","Firefox":"21.2 %","Safari":"4.5 %","Opera":"2.2 %"},
+	// 	{"2015":"July","Chrome":"63.3 %","IE":"6.5 %","Firefox":"21.6 %","Safari":"4.9 %","Opera":"2.5 %"},
+	// 	{"2015":"June","Chrome":"64.8 %","IE":"7.1 %","Firefox":"21.3 %","Safari":"3.8 %","Opera":"1.8 %"},
+	// 	{"2015":"May","Chrome":"64.9 %","IE":"7.1 %","Firefox":"21.5 %","Safari":"3.8 %","Opera":"1.6 %"},
+	// 	{"2015":"April","Chrome":"63.9 %","IE":"8.0 %","Firefox":"21.6 %","Safari":"3.8 %","Opera":"1.5 %"},
+	// 	{"2015":"March","Chrome":"63.7 %","IE":"7.7 %","Firefox":"22.1 %","Safari":"3.9 %","Opera":"1.5 %"},
+	// 	{"2015":"February","Chrome":"62.5 %","IE":"8.0 %","Firefox":"22.9 %","Safari":"3.9 %","Opera":"1.5 %"},
+	// 	{"2015":"January","Chrome":"61.9 %","IE":"7.8 %","Firefox":"23.4 %","Safari":"3.8 %","Opera":"1.6 %"}
+	// ],
 	////inserting: true,
 	callbackInserting: callbackInserting,
 	////editing: true,

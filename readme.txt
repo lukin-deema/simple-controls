@@ -20,6 +20,7 @@ SimpleGrid v1.0.4.
 		5. add possibility to append new column in table
 		6. add callbackSort/callbackAddColumn 
 		7. remove column and callbackRemoveColumn
+	
 	v1.0.3 
 		1. renames
 			removeItemById() -> removeItem
@@ -37,33 +38,37 @@ SimpleGrid v1.0.4.
 			callbackRemoveColumn -> callbackColumnDeleting
 		2. if callback{action} change default of {action} to true ({action}=> deleting, inserting, sorting, editing, columnInserting, columnDeleting)
 		3. when 'headers' not define check all data for object keys and get unique keys
+	
 	v1.0.4
 		1. change callbackInserting -> function(result[, updatedItem]){ } , can redefine 'newItem' if necessary, when 'updatedItem'!=undefined it replace 'newItem'
 		2. change callbackEditing -> function(result[, updatedItem]){ } , can redefine 'newItem' if necessary, when 'updatedItem'!=undefined it replace 'newItem'
 		3. change callbackColumnInserting -> function(result[, updatedItem]){ } , can redefine 'newColumnName' if necessary, when 'updatedItem'!=undefined it replace 'newColumnName'
 		4. change inner option 'sortDescriptors' from array [SortDescriptor,..] to object {header1:SortDescriptor,...}
 		5. change callbackSorting -> function(result[, updtedSortName, updatedSortAsc]){ } , can redefine 'updtedSortName' and 'updatedSortAsc' if necessary, when values!=undefined it replace old values
-		6. add 'hiddenHeaders', header witch doesnot show 
+		6. add 'hiddenHeaders', column witch doesnot show, it exists in 'data' but doesnt show on UI
+
+	v1.0.5
+		
 
 	options:
-		{v1.0.0}  headers: --default=[], array of string [headers[0],...,headers[n]]
-		{v1.0.0}  data: --default=[], can be added using addItems method [{headers[i]: value,..., headers[n]: value},{...}]
-		{v1.0.0}  containerIdName: --default="snTable"
-		{v1.0.0}  tableClass: --default=undefined, on some value remove default style on table and set this value
-		{v1.0.0}  deleting: --default=false(or true if defined callbackDeleting) on true append button for delete item
-		{v1.0.0}  sorting: --default=false(or true if defined callbackSorting) on true add button for delete item
-		{v1.0.1}  callbackDeleting: --default=function(item, index, callback){ callback(true); }
-		{v1.0.1}  dataTemplate: --default="%data%", "%data%" OR {headers[0]: "%data%",...,headers[n]: "%data%"}
-		{v1.0.1}  inserting: --default=false (or true if defined callbackInserting)  on true in table footer will be input boxes for adding new item in table. input boxes id = 'add-{header[i]}'  
-		{v1.0.1}  callbackInserting: --default=function(item, callback){ callback(true[, updatedItem]); 
-		{v1.0.2}  editing: --default=false (or true if defined callbackEditing) on true append button for edit current item. edit item occur in footer 
-		{v1.0.2}  callbackEditing: --default=function(olditem, newItem, index, callback){ callback(true[, updatedItem]); }
-		{v1.0.2}  columnInserting: --default=false (or true if defined callbackColumnInserting), append buttor and inputbox for adding new column to table
-		{v1.0.2}  callbackSorting: --default=function(columnName, columnAcs, callback){callback(true)}
-		{v1.0.2}  callbackColumnInserting: --default=function(columnName, callback){callback(true[, updatedItem])}
-		{v1.0.2}  callbackColumnDeleting: --default=function(columnName, affectedCount, callback){callback(true)}
-		{v1.0.2}  columnDeleting: --default=false (or true if defined callbackColumnDeleting), append button and inputbox for remove column from table (looks like cross)
-		{v1.0.4}  hiddenHeaders: --default=undefided, ["string1",...] this headers doesnt show on UI
+		| headers | v1.0.0 | --default=[] | Showing heders can be add new header using columnInserting = true [header[0],...,header[n]]
+		| data		| v1.0.0 | --default=[] | Showing informations, can be added using method addItems(items) [{header[i]: value,..., header[n]: value},{...}]{v1.0.0}  containerIdName | v1.0.0 | --default='snTable' | It is the container id where grid will render <div id='snTable'></div>
+		| tableClass | v1.0.0 | --default=undefined | On some value remove default style on table and set this value as class attrinbute
+		| deleting | v1.0.0 | --default=false | On true append button for delete item in additional column
+		| sorting | v1.0.0 | --default=false | On true append sorting button in each header of the table
+		| callbackDeleting | v1.0.1 | --default=function(item,index,callback){callback(true);} | When callbackDeleting obviously define 'deleting' parameter will redefined as true
+		| dataTemplate | v1.0.1 | --default="%data%" | Same tamplate for every column is "%data%". Specify template for each column {header[0]: "%data%",...,header[n]: "%data%"}
+		| inserting | v1.0.1 | --default=false | On true append input boxes for adding new item in in additional column,  input boxes id = 'add-{header[i]}'
+		| inserting | v1.0.1 | --default=false | On true append input boxes for adding new item in in additional column
+		| editing | v1.0.2 | --default=false | On true append button for edit current item. edit item occur in footer
+		| callbackEditing | v1.0.2 | --default=function(olditem, newItem, index, callback){ callback(true[, updatedItem]);} | When callbackEditing obviously define 'editing' parameter will redefined as true
+		| callbackInserting | v1.0.1 | --default=function(item, callback){callback(true[, updatedItem]);} | When callbackInserting obviously define 'inserting' parameter will redefined as true
+		| callbackSorting | v1.0.2 | --default=function(columnName,columnAcs,callback) {callback(true)} | When callbackSorting obviously define 'sorting' parameter will redefined as true
+		| columnInserting| v1.0.2| --default=false | On true append button and inputbox for adding new column to additional column in table header
+		| callbackColumnInserting | v1.0.2 | --default=function(columnName, callback){callback(true[, updatedItem])} | When callbackColumnInserting obviously define 'columnInserting' parameter will redefined as true	
+		| columnDeleting | v1.0.2 | --default=false | On true append button for deleting column in table header
+		| callbackColumnDeleting | v1.0.2 | --default=function(columnName, affectedCount, callback){ callback(true)} | When callbackColumnDeleting obviously define 'columnDeleting' parameter will redefined as true
+		| hiddenHeaders | v1.0.4 | --default=undefided | This headers doesnt show on UI [header[n+1],...] if data should contains some addition information
 
 	inner options:
 		{v1.0.2}  editIndex&oldItem show index and old value for edit item. set in  prepareToEdit method, reset in footerButtonClick/callbackEditing
