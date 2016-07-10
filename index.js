@@ -15,7 +15,13 @@ var ttOption1 = {
 	hookElem: document.querySelector("#ttTest1"),	// require
 	containerIdName: "id1",	// default "toolTip"
 	//toolTipText: "Show notify",	// default "Default Text"
-	hookAttr: "value",	// default undefined
+	//hookAttr: "value",	// default undefined
+	toolTipText: "text",
+	templateType: "buttonsIYC",
+	templateClickEvent: function(buttonChar, inputValue, callback, e){ 
+		alert(buttonChar+"--"+inputValue); 
+		callback();
+	}, 
 }
 ///////////// TT
 var ttOption2 = {
@@ -50,7 +56,7 @@ var ttOption4 = {
 var tt1 = new SimpleToolTip(ttOption3);
 var tt2 = new SimpleToolTip(ttOption4);
 function addTT() {
-	tt2.add();
+	tt2.hook();
 }
 function destroyTT() {
 	tt2.destroy();
