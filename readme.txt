@@ -115,14 +115,30 @@ SimpleToolTip v1.0.0
 		2. text can be static 'toolTipText' or dynamic 'hookAttr'. 'hookAttr' is the attribute name whitch will be showing on tooltip. by default it sync only one time, if 'track' = true tooltip can update in case of updating attribute
 		3. hooking tooltip can be postponed and hook by calling .hook()
 
+	v1.0.1
+		1. make a border around tooltip with margin 5px
+		2-. add template "text" "buttons YNC"(yes/no/cancel), "buttons OC"(ок/cancel); "inputbox" with button 
+		3-. add README.md  documentation
+
 	options:
 		{v1.0.0}  hookElem: --require --default=undefined, dom element	
 		{v1.0.0}  containerIdName: --default="toolTip", if of tooltip container in document
 		{v1.0.0}  toolTipText: --default=undefined, predefine constant text in tooltip
 		{v1.0.0}  hookAttr: --default=undefined, get value from attribute of hookElem
-		(!)toolTipText & hookAttr set tooltip text, toolTipText high priority
+			(!)toolTipText & hookAttr set tooltip text, toolTipText high priority
 		{v1.0.0}  track: --default=false, in case of hookAttr listen for changes and update value
 		{v1.0.0}  hookOnCreate: --default=true, render tooltip on create new instance (new SimpleToolTip(optins);
+		{v1.0.1}  templateType: string --default="text", all: "buttons YNC", "buttons OC", "inputbox"
+		{v1.0.1}  template: string --default is depends on templateType:
+			"text" -       "<data>"
+			"buttonsYNC" - "<data> <buttonY> <buttonN> <buttonC>"
+			"buttonsYC" -  "<data> <buttonY> <buttonC>"
+			"buttonsIY" -   "<data> <inputBox> <buttonY>"
+		{v1.0.1}  templateClickEvent: --default=function(buttonChar, callback, e){ callback(); }; , for buttons on template, where buttonChar: "buttonY","buttonN","buttonC"
+
+	inner options:
+		{v1.0.1}  isShown: true is tooltip TemplateType.text display true
+
 	methods:
 		{v1.0.0}  optionsGet
 		{v1.0.0}  optionsSet
