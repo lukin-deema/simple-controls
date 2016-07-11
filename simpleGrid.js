@@ -143,7 +143,12 @@
 			}
 		}
 	}
-
+	function destroy(){
+		var domContainer = document.querySelector("#"+this.options.containerIdName);
+		while (domContainer.firstChild) {
+			domContainer.removeChild(domContainer.firstChild);
+		}
+	}
 	/// header
 	function createHeader() {
 		var header = document.createElement("thead");
@@ -498,7 +503,20 @@
 
 	/// options
 	function optionsGet() {
-
+		var headers = this.options.headers.reduce(function(result, el){
+			if (el.show) {
+				result.push({"header": el.header, "template": el.template, "value": el.value});
+			}
+			return result;
+		}, [])
+		var hiddenHeaders = this.options.headers.reduce(function(result, el){
+			if (!el.show) {
+				result.push({"header": el.header, "template": el.template, "value": el.value});
+			}
+			return result;
+		}, [])		
+		this.options.headers = headers;
+		this.options.hiddenHeaders = hiddenHeaders;
 		return this.options;
 	}
 	function optionsSet(opt) {
@@ -511,7 +529,7 @@
 		this.options.headers = []
 		if (opt.hiddenHeaders) {
 			addOptionHeaders.call(this, opt.hiddenHeaders, false);
-		}		
+		}
 		if (opt.headers) {
 			addOptionHeaders.call(this, opt.headers, true);
 		}
@@ -583,11 +601,13 @@
 	}
 
 	function SimpleGrid(opt) { 
-		this.optionsSet(opt);
-		this.render();
+		if (opt) {
+			this.optionsSet(opt);
+		}
 	}
 	SimpleGrid.prototype = { 
 		render: render,
+		destroy: destroy,
 		addItems: addItems,
 		removeItem: removeItem,
 		optionsGet: optionsGet, 

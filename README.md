@@ -277,6 +277,10 @@ Default value: function(columnName, affectedCount, callback){ callback(true)}
 Method for render table in container with [containerIdName](#containeridname) 
 [top](#table-of-contents)
 
+#### destroy
+Method for programmatically remove table from container [containerIdName](#containeridname) 
+[top](#table-of-contents)
+
 #### optionsGet
 Get current instance option
 [top](#table-of-contents)
