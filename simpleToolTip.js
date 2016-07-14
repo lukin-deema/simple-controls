@@ -146,19 +146,27 @@
 			hook.removeEventListener('mouseover', onMouseOver);
 			hook.removeEventListener('mouseleave', onMouseLeave);
 			var elem = document.querySelector("#"+e.target.getAttribute('containerIdName'));
-			elem.style.top = (hook.offsetTop+hook.offsetHeight)+"px";
-			elem.style.left = (hook.offsetLeft)+"px";	
+			var pos = hook.getBoundingClientRect();
+			elem.style.top =  pos.bottom+"px";
+			elem.style.left = pos.left+"px";
 			this.options.isShown = true;
 		}
 	}
-
+	function isAddClickEvent(){
+		if (this.options.template.indexOf("%buttonY%") != -1 ||
+				this.options.template.indexOf("%buttonN%") != -1 ||
+				this.options.template.indexOf("%buttonC%") != -1) {
+			return true;
+		}
+		return false;
+	}
 	function hook() {
 		if (!this.toolTipContainer) {
 			this.options.hookElem.setAttribute('containerIdName', this.options.containerIdName);
 			this.options.hookElem.addEventListener('mousemove', onMouseMove);
 			this.options.hookElem.addEventListener('mouseover', onMouseOver);
 			this.options.hookElem.addEventListener('mouseleave', onMouseLeave);
-			if (this.options.templateType != TemplateType.text) {
+			if (isAddClickEvent.call(this)) {
 				this.options.hookElem.addEventListener('click', onClickTooltip.bind(this));
 			}
 			replaceTemplate.call(this);
@@ -214,6 +222,9 @@
 			case TemplateType.text: 
 			default: this.options.template = TemplateDefault.text;
 			
+		}
+		if (opt.template) {
+			this.options.template = opt.template;
 		}
 		this.options.templateClickEvent = opt.templateClickEvent || function(buttonChar, inputValue, callback, e){ callback(); };
 		this.options.isShown = false;

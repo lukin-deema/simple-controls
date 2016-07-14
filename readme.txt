@@ -118,8 +118,8 @@ SimpleToolTip v1.0.0
 
 	v1.0.1
 		1. make a border around tooltip with margin 5px
-		2-. add template "text" "buttons YNC"(yes/no/cancel), "buttons OC"(ок/cancel); "inputbox" with button 
-		3-. add README.md  documentation
+		2. add template "text" "buttons YNC"(yes/no/cancel), "buttons OC"(ок/cancel); "inputbox" with button 
+		3. add README.md  documentation
 
 	options:
 		{v1.0.0}  hookElem: --require --default=undefined, dom element	
@@ -134,7 +134,7 @@ SimpleToolTip v1.0.0
 			"text" -       "<data>"
 			"buttonsYNC" - "<data> <buttonY> <buttonN> <buttonC>"
 			"buttonsYC" -  "<data> <buttonY> <buttonC>"
-			"buttonsIY" -   "<data> <inputBox> <buttonY>"
+			"buttonsIC" -   "<data> <inputBox> <buttonC>"
 		{v1.0.1}  templateClickEvent: --default=function(buttonChar, callback, e){ callback(); }; , for buttons on template, where buttonChar: "buttonY","buttonN","buttonC"
 
 	inner options:
